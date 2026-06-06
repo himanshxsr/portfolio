@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { AnimeWave } from "@/components/animations/AnimeWave";
 
 export function Preloader() {
   const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +43,9 @@ export function Preloader() {
                 transition={{ duration: 1.5, ease: "easeInOut" }}
               />
             </motion.div>
+
+            {/* Wave animation */}
+            <AnimeWave className="mt-4" />
 
             {/* Loading text */}
             <motion.p

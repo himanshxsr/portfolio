@@ -7,6 +7,7 @@ import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { TechMarquee } from "@/components/animations/TechMarquee";
 import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
+import { AnimeGrid } from "@/components/animations/AnimeGrid";
 import { personalData } from "@/data/personal";
 import { ChevronDown, Download, Send } from "lucide-react";
 
@@ -274,6 +275,18 @@ export default function Home() {
                 {personalData.social.email}
               </MagneticButton>
             </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Interactive Grid - Click anywhere */}
+      <section className="py-16 px-6">
+        <div className="mx-auto max-w-5xl">
+          <ScrollReveal>
+            <p className="text-center text-text-secondary/50 text-xs font-mono mb-4">
+              {"// click anywhere on the grid"}
+            </p>
+            <AnimeGrid className="rounded-xl overflow-hidden" />
           </ScrollReveal>
         </div>
       </section>
