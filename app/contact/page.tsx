@@ -34,9 +34,11 @@ export default function ContactPage() {
         setFormState("sent");
         setFormData({ name: "", email: "", message: "" });
       } else {
+        console.error("Contact form error:", data.error);
         setFormState("idle");
       }
-    } catch {
+    } catch (err) {
+      console.error("Contact form exception:", err);
       setFormState("idle");
     }
 
