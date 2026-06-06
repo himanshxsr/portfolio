@@ -7,6 +7,7 @@ import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { TechMarquee } from "@/components/animations/TechMarquee";
 import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
+import { TypingCodeCard } from "@/components/animations/TypingCodeCard";
 import { personalData } from "@/data/personal";
 import { ChevronDown, Download, Send } from "lucide-react";
 
@@ -144,56 +145,9 @@ export default function Home() {
       <section className="py-20 px-6">
         <div className="mx-auto max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left - Code Card */}
+            {/* Left - Typing Code Card */}
             <ScrollReveal direction="left">
-              <div className="rounded-2xl bg-surface border border-border-subtle overflow-hidden p-6">
-                {/* Terminal header */}
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/80" />
-                  <span className="ml-2 text-xs font-mono text-text-secondary">about.ts</span>
-                </div>
-                {/* Code */}
-                <div className="font-mono text-sm leading-relaxed space-y-1">
-                  <p className="text-text-secondary/50">{"// who am i"}</p>
-                  <p>
-                    <span className="text-secondary">const</span>{" "}
-                    <span className="text-primary">developer</span>{" "}
-                    <span className="text-text-secondary">= {"{"}</span>
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-text-secondary">name:</span>{" "}
-                    <span className="text-green-400">{`"Himanshu Aashish"`}</span>,
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-text-secondary">role:</span>{" "}
-                    <span className="text-green-400">{`"Full-Stack & GenAI Dev"`}</span>,
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-text-secondary">company:</span>{" "}
-                    <span className="text-green-400">{`"Elisium Space"`}</span>,
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-text-secondary">stack:</span>{" "}
-                    <span className="text-text-secondary">[</span>
-                    <span className="text-green-400">{`"MERN", "AWS", "GenAI"`}</span>
-                    <span className="text-text-secondary">],</span>
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-text-secondary">available:</span>{" "}
-                    <span className="text-primary">true</span>
-                  </p>
-                  <p><span className="text-text-secondary">{"}"}</span></p>
-                  <motion.span
-                    className="text-primary inline-block"
-                    animate={{ opacity: [1, 0, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  >
-                    █
-                  </motion.span>
-                </div>
-              </div>
+              <TypingCodeCard />
             </ScrollReveal>
 
             {/* Right - About Text */}
