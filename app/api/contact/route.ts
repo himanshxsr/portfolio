@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, message } = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
+
+    const { name, email, message } = body;
 
     // Validate
     if (!name || !email || !message) {
@@ -21,50 +33,55 @@ export async function POST(request: NextRequest) {
 
     const web3formsKey = process.env.WEB3FORMS_KEY;
     if (!web3formsKey) {
-      console.error("WEB3FORMS_KEY is not set");
       return NextResponse.json(
-        { error: "Server configuration error" },
+        { error: "CONFIG: WEB3FORMS_KEY not set" },
         { status: 500 }
       );
     }
 
     // Send to Web3Forms (notification to your Gmail)
-    const web3Res = await fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        access_key: web3formsKey,
-        name,
-        email,
-        message,
-        subject: `Portfolio Contact: ${name}`,
-      }),
-    });
-
-    const web3Data = await web3Res.json();
-
-    if (!web3Data.success) {
-      console.error("Web3Forms error:", web3Data);
+    let web3Data;
+    try {
+      const web3Res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_key: web3formsKey,
+          name,
+          email,
+          message,
+          subject: `Portfolio Contact: ${name}`,
+        }),
+      });
+      web3Data = await web3Res.json();
+    } catch (fetchErr) {
       return NextResponse.json(
-        { error: "Failed to send message: " + (web3Data.message || "Unknown error") },
+        { error: "FETCH_FAILED: " + String(fetchErr) },
         { status: 500 }
       );
     }
 
-    // Send auto-reply via Google Apps Script
+    if (!web3Data.success) {
+      return NextResponse.json(
+        { error: "WEB3FORMS_REJECTED: " + (web3Data.message || JSON.stringify(web3Data)) },
+        { status: 500 }
+      );
+    }
+
+    // Send auto-reply via Google Apps Script (fire and forget)
     const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
     if (appsScriptUrl) {
       fetch(appsScriptUrl, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email }),
-      }).catch((err) => console.error("Apps Script error:", err));
+      }).catch(() => {});
     }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Contact API error:", err);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "UNCAUGHT: " + String(err) },
       { status: 500 }
     );
   }
