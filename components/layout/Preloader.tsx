@@ -30,7 +30,7 @@ export function Preloader() {
               }}
               className="text-5xl font-mono font-bold text-primary"
             >
-              {"<HA />"}
+              {"<dev_himansh />"}
             </motion.div>
 
             {/* Loading bar */}

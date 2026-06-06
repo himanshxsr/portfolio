@@ -40,7 +40,7 @@ export function Navbar() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {"<HA />"}
+            {"<dev_himansh />"}
           </motion.span>
         </Link>
 

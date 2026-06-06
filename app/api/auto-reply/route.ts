@@ -43,7 +43,7 @@ function getEmailTemplate(name: string): string {
           <tr>
             <td style="background: linear-gradient(135deg, rgba(0,240,255,0.1), rgba(123,47,247,0.1)); padding:40px 40px 30px; text-align:center;">
               <div style="font-size:28px; font-weight:bold; font-family:monospace; color:#00f0ff; margin-bottom:8px;">
-                &lt;HA /&gt;
+                &lt;dev_himansh /&gt;
               </div>
               <div style="font-size:13px; color:#a0a0b0; font-family:monospace;">
                 // message received
