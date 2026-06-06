@@ -44,7 +44,10 @@ export async function POST(request: NextRequest) {
     try {
       const web3Res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: JSON.stringify({
           access_key: web3formsKey,
           name,
@@ -53,7 +56,16 @@ export async function POST(request: NextRequest) {
           subject: `Portfolio Contact: ${name}`,
         }),
       });
-      web3Data = await web3Res.json();
+
+      const responseText = await web3Res.text();
+      try {
+        web3Data = JSON.parse(responseText);
+      } catch {
+        return NextResponse.json(
+          { error: "WEB3FORMS_INVALID_RESPONSE: status=" + web3Res.status + " body=" + responseText.slice(0, 200) },
+          { status: 500 }
+        );
+      }
     } catch (fetchErr) {
       return NextResponse.json(
         { error: "FETCH_FAILED: " + String(fetchErr) },
