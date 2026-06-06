@@ -22,19 +22,34 @@ export default function ContactPage() {
     setFormState("sending");
 
     try {
-      const res = await fetch("/api/contact", {
+      // Web3Forms is designed to be called from the browser (has Cloudflare protection against server calls)
+      const web3Res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          access_key: "8570a842-12b3-4b74-bfe8-efe7c3bbc3b0",
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          subject: `Portfolio Contact: ${formData.name}`,
+        }),
       });
 
-      const data = await res.json();
+      const web3Data = await web3Res.json();
 
-      if (data.success) {
+      if (web3Data.success) {
         setFormState("sent");
+
+        // Trigger auto-reply from server (Google Apps Script)
+        fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: formData.name, email: formData.email }),
+        }).catch(() => {});
+
         setFormData({ name: "", email: "", message: "" });
       } else {
-        console.error("Contact form error:", data.error);
+        console.error("Web3Forms error:", web3Data);
         setFormState("idle");
       }
     } catch (err) {
