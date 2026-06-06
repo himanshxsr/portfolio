@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <rect width="400" height="300" fill="#12121a"/>
+  <!-- 3D Cube wireframe -->
+  <g transform="translate(200, 130)" stroke="#00f0ff" stroke-width="1.5" fill="none" opacity="0.8">
+    <!-- Front face -->
+    <polygon points="-40,-40 40,-40 40,40 -40,40"/>
+    <!-- Back face -->
+    <polygon points="-20,-60 60,-60 60,20 -20,20" opacity="0.4"/>
+    <!-- Connecting lines -->
+    <line x1="-40" y1="-40" x2="-20" y2="-60" opacity="0.5"/>
+    <line x1="40" y1="-40" x2="60" y2="-60" opacity="0.5"/>
+    <line x1="40" y1="40" x2="60" y2="20" opacity="0.5"/>
+    <line x1="-40" y1="40" x2="-20" y2="20" opacity="0.5"/>
+  </g>
+  <!-- Floating particles -->
+  <circle cx="80" cy="60" r="2" fill="#7b2ff7" opacity="0.6">
+    <animate attributeName="cy" values="60;50;60" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="320" cy="80" r="1.5" fill="#00f0ff" opacity="0.5">
+    <animate attributeName="cy" values="80;70;80" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="150" cy="220" r="2" fill="#00f0ff" opacity="0.4">
+    <animate attributeName="cy" values="220;210;220" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="300" cy="200" r="1.5" fill="#7b2ff7" opacity="0.5">
+    <animate attributeName="cy" values="200;190;200" dur="3.5s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Orbit ring -->
+  <ellipse cx="200" cy="130" rx="80" ry="25" stroke="#7b2ff7" stroke-width="0.5" opacity="0.3" fill="none"/>
+  <!-- Title -->
+  <text x="200" y="275" text-anchor="middle" font-size="12" fill="#a0a0b0" font-family="monospace">3D Spatial Showcase</text>
+</svg>

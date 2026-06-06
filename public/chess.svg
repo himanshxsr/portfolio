@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <rect width="400" height="300" fill="#12121a"/>
+  <!-- Chessboard -->
+  <g transform="translate(100, 50)">
+    <!-- Board -->
+    <rect x="0" y="0" width="200" height="200" fill="#1a1a2e" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.3" rx="4"/>
+    <!-- Grid squares -->
+    <g opacity="0.6">
+      <rect x="0" y="0" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="50" y="0" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="100" y="0" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="150" y="0" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="25" y="25" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="75" y="25" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="125" y="25" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="175" y="25" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="0" y="50" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="50" y="50" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="100" y="50" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="150" y="50" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="25" y="75" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="75" y="75" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="125" y="75" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="175" y="75" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="0" y="100" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="50" y="100" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="100" y="100" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="150" y="100" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="25" y="125" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="75" y="125" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="125" y="125" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="175" y="125" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="0" y="150" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="50" y="150" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="100" y="150" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="150" y="150" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="25" y="175" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="75" y="175" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="125" y="175" width="25" height="25" fill="#2a2a3e"/>
+      <rect x="175" y="175" width="25" height="25" fill="#2a2a3e"/>
+    </g>
+    <!-- Knight piece -->
+    <text x="62" y="95" font-size="40" fill="#00f0ff" opacity="0.9">♞</text>
+    <!-- King piece -->
+    <text x="112" y="145" font-size="40" fill="#7b2ff7" opacity="0.9">♚</text>
+    <!-- Real-time indicator -->
+    <circle cx="180" cy="20" r="5" fill="#00f0ff" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <text x="140" y="24" font-size="8" fill="#00f0ff" opacity="0.6" font-family="monospace">LIVE</text>
+  </g>
+  <!-- Title -->
+  <text x="200" y="275" text-anchor="middle" font-size="12" fill="#a0a0b0" font-family="monospace">Real-Time Chess</text>
+</svg>
