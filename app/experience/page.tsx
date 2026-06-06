@@ -22,12 +22,20 @@ export default function ExperiencePage() {
             {/* Vertical Line */}
             <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-border-subtle md:-translate-x-px">
               <motion.div
-                className="w-full bg-gradient-to-b from-primary to-secondary"
+                className="w-full bg-gradient-to-b from-primary via-secondary to-primary"
                 initial={{ height: "0%" }}
                 whileInView={{ height: "100%" }}
                 viewport={{ once: true }}
                 transition={{ duration: 2, ease: "easeOut" }}
                 style={{ position: "absolute", top: 0 }}
+              />
+              {/* Glow on the line */}
+              <motion.div
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-2 bg-primary/30 blur-sm"
+                initial={{ height: "0%" }}
+                whileInView={{ height: "100%" }}
+                viewport={{ once: true }}
+                transition={{ duration: 2, ease: "easeOut" }}
               />
             </div>
 

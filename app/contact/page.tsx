@@ -118,7 +118,7 @@ export default function ContactPage() {
             <ScrollReveal direction="right">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name Field */}
-                <div className="relative">
+                <div className="relative group">
                   <input
                     type="text"
                     id="name"
@@ -127,7 +127,7 @@ export default function ContactPage() {
                       setFormData({ ...formData, name: e.target.value })
                     }
                     required
-                    className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 transition-colors"
+                    className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,240,255,0.1)] transition-all duration-300"
                     placeholder="Name"
                   />
                   <label
@@ -139,7 +139,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Email Field */}
-                <div className="relative">
+                <div className="relative group">
                   <input
                     type="email"
                     id="email"
@@ -148,7 +148,7 @@ export default function ContactPage() {
                       setFormData({ ...formData, email: e.target.value })
                     }
                     required
-                    className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 transition-colors"
+                    className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,240,255,0.1)] transition-all duration-300"
                     placeholder="Email"
                   />
                   <label
@@ -160,7 +160,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Message Field */}
-                <div className="relative">
+                <div className="relative group">
                   <textarea
                     id="message"
                     value={formData.message}
@@ -169,7 +169,7 @@ export default function ContactPage() {
                     }
                     required
                     rows={5}
-                    className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                    className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,240,255,0.1)] transition-all duration-300 resize-none"
                     placeholder="Message"
                   />
                   <label
@@ -184,9 +184,9 @@ export default function ContactPage() {
                 <motion.button
                   type="submit"
                   disabled={formState !== "idle"}
-                  className="w-full py-3.5 rounded-xl bg-primary text-background font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-70"
+                  className="w-full py-3.5 rounded-xl bg-primary text-background font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all duration-300 disabled:opacity-70 relative overflow-hidden"
                   whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {formState === "idle" && (
                     <>

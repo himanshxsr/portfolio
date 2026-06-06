@@ -24,24 +24,41 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={social.label}
-              className="p-3 rounded-full border border-border-subtle text-text-secondary hover:text-primary hover:border-primary/30 transition-colors duration-200"
-              whileHover={{ scale: 1.1, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
+              className="p-3 rounded-full border border-border-subtle text-text-secondary hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all duration-200"
+              whileHover={{ scale: 1.2, y: -4, rotate: [0, -10, 10, 0] }}
+              whileTap={{ scale: 0.9 }}
+              animate={{
+                y: [0, -3, 0],
+              }}
+              transition={{
+                y: {
+                  duration: 2 + i * 0.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                },
+              }}
             >
               <social.icon size={20} />
             </motion.a>
           ))}
         </div>
 
+        {/* Animated divider */}
+        <motion.div
+          className="w-32 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+          animate={{ scaleX: [0.5, 1, 0.5], opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        />
+
         {/* Copyright */}
-        <p className="text-text-secondary text-sm font-mono">
+        <motion.p
+          className="text-text-secondary text-sm font-mono"
+          whileHover={{ scale: 1.02 }}
+        >
           <span className="text-primary">{"<"}</span>
           {` Built with passion by ${personalData.name} `}
           <span className="text-primary">{"/>"}</span>
-        </p>
+        </motion.p>
         <p className="text-text-secondary/50 text-xs">
           &copy; {new Date().getFullYear()} All rights reserved.
         </p>
