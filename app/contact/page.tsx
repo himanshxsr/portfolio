@@ -22,30 +22,16 @@ export default function ContactPage() {
     setFormState("sending");
 
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          access_key: process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "",
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-          subject: `Portfolio Contact: ${formData.name}`,
-        }),
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json();
 
       if (data.success) {
         setFormState("sent");
-
-        // Send themed auto-reply email
-        fetch("/api/auto-reply", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: formData.name, email: formData.email }),
-        }).catch(() => {}); // Fire and forget
-
         setFormData({ name: "", email: "", message: "" });
       } else {
         setFormState("idle");

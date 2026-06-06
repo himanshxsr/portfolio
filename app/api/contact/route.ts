@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, email, message } = body;
+    const { name, email, message } = await request.json();
 
     // Validate
     if (!name || !email || !message) {
@@ -20,23 +19,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, integrate with Resend, SendGrid, or EmailJS here.
-    // For now, log the message and return success.
-    // Example with Resend:
-    // const resend = new Resend(process.env.RESEND_API_KEY);
-    // await resend.emails.send({
-    //   from: 'portfolio@yourdomain.com',
-    //   to: 'himanshuaashish4@gmail.com',
-    //   subject: `Portfolio Contact: ${name}`,
-    //   html: `<p><strong>From:</strong> ${name} (${email})</p><p>${message}</p>`,
-    // });
+    // Send to Web3Forms (notification to your Gmail)
+    const web3Res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        access_key: process.env.WEB3FORMS_KEY,
+        name,
+        email,
+        message,
+        subject: `Portfolio Contact: ${name}`,
+      }),
+    });
 
-    console.log("Contact form submission:", { name, email, message });
+    const web3Data = await web3Res.json();
 
-    return NextResponse.json(
-      { success: true, message: "Message sent successfully!" },
-      { status: 200 }
-    );
+    if (!web3Data.success) {
+      return NextResponse.json(
+        { error: "Failed to send message" },
+        { status: 500 }
+      );
+    }
+
+    // Send auto-reply via Google Apps Script
+    fetch(process.env.GOOGLE_APPS_SCRIPT_URL!, {
+      method: "POST",
+      body: JSON.stringify({ name, email }),
+    }).catch(() => {}); // Fire and forget
+
+    return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(
       { error: "Internal server error" },
