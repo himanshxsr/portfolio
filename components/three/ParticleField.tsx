@@ -1,37 +1,44 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+
+function createParticleBuffers(count: number) {
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+
+  // Deterministic pseudo-random so render stays pure across re-renders.
+  let seed = count * 9973 + 1;
+  const next = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = (next() - 0.5) * 20;
+    positions[i * 3 + 1] = (next() - 0.5) * 20;
+    positions[i * 3 + 2] = (next() - 0.5) * 20;
+
+    const t = next();
+    colors[i * 3] = t * 0.48;
+    colors[i * 3 + 1] = 0.94 - t * 0.76;
+    colors[i * 3 + 2] = 1 - t * 0.03;
+  }
+
+  return { positions, colors };
+}
 
 export function ParticleField({ count = 2000 }) {
   const mesh = useRef<THREE.Points>(null);
 
-  const particles = useMemo(() => {
-    const positions = new Float32Array(count * 3);
-    const colors = new Float32Array(count * 3);
-
-    for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
-
-      // Cyan to violet gradient
-      const t = Math.random();
-      colors[i * 3] = t * 0.48; // R
-      colors[i * 3 + 1] = 0.94 - t * 0.76; // G
-      colors[i * 3 + 2] = 1 - t * 0.03; // B
-    }
-
-    return { positions, colors };
-  }, [count]);
+  const particles = useMemo(() => createParticleBuffers(count), [count]);
 
   useFrame((state) => {
     if (!mesh.current) return;
     mesh.current.rotation.x = state.clock.elapsedTime * 0.02;
     mesh.current.rotation.y = state.clock.elapsedTime * 0.03;
 
-    // Subtle floating motion
     const positions = mesh.current.geometry.attributes.position
       .array as Float32Array;
     for (let i = 0; i < count; i++) {

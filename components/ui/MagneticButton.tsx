@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface MagneticButtonProps {
   children: React.ReactNode;
@@ -34,7 +35,9 @@ export function MagneticButton({
     setPosition({ x: 0, y: 0 });
   };
 
-  const Component = href ? "a" : "button";
+  const isInternal = Boolean(href?.startsWith("/") && !href.startsWith("//"));
+  const isExternal = Boolean(href && !isInternal);
+  const sharedClassName = `relative inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-medium transition-all duration-200 active:scale-95 ${className}`;
 
   return (
     <motion.div
@@ -45,13 +48,26 @@ export function MagneticButton({
       transition={{ type: "spring", stiffness: 300, damping: 15, mass: 0.5 }}
       className="inline-block"
     >
-      <Component
-        href={href}
-        onClick={onClick}
-        className={`relative inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-medium transition-all duration-200 active:scale-95 ${className}`}
-      >
-        {children}
-      </Component>
+      {isInternal && href ? (
+        <Link href={href} onClick={onClick} className={sharedClassName}>
+          {children}
+        </Link>
+      ) : href ? (
+        <a
+          href={href}
+          onClick={onClick}
+          className={sharedClassName}
+          {...(isExternal
+            ? { target: "_blank", rel: "noopener noreferrer" }
+            : {})}
+        >
+          {children}
+        </a>
+      ) : (
+        <button type="button" onClick={onClick} className={sharedClassName}>
+          {children}
+        </button>
+      )}
     </motion.div>
   );
 }

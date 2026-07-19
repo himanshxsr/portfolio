@@ -20,18 +20,18 @@ export function AnimatedCounter({
 }: AnimatedCounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
-  const [hasAnimated, setHasAnimated] = useState(false);
+  const hasAnimated = useRef(false);
 
   const spring = useSpring(0, { duration: duration * 1000 });
   const display = useTransform(spring, (current) => Math.round(current));
   const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
-    if (isInView && !hasAnimated) {
+    if (isInView && !hasAnimated.current) {
+      hasAnimated.current = true;
       spring.set(target);
-      setHasAnimated(true);
     }
-  }, [isInView, hasAnimated, spring, target]);
+  }, [isInView, spring, target]);
 
   useEffect(() => {
     const unsubscribe = display.on("change", (v) => setDisplayValue(v));

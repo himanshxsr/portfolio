@@ -1,63 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { personalData } from "@/data/personal";
-import { Send, CheckCircle, Mail } from "lucide-react";
+import { Send, CheckCircle, Mail, AlertCircle } from "lucide-react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
+type FormState = "idle" | "sending" | "sent" | "error";
+
 export default function ContactPage() {
-  const [formState, setFormState] = useState<"idle" | "sending" | "sent">("idle");
+  const [formState, setFormState] = useState<FormState>("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
+    website: "",
   });
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    };
+  }, []);
+
+  const scheduleIdleReset = (delayMs = 4000) => {
+    if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    resetTimerRef.current = setTimeout(() => {
+      setFormState("idle");
+      setErrorMessage(null);
+    }, delayMs);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormState("sending");
+    setErrorMessage(null);
 
     try {
-      // Web3Forms is designed to be called from the browser (has Cloudflare protection against server calls)
-      const web3Res = await fetch("https://api.web3forms.com/submit", {
+      const res = await fetch("/api/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          access_key: "8570a842-12b3-4b74-bfe8-efe7c3bbc3b0",
           name: formData.name,
           email: formData.email,
           message: formData.message,
-          subject: `Portfolio Contact: ${formData.name}`,
+          website: formData.website,
         }),
       });
 
-      const web3Data = await web3Res.json();
+      const data = (await res.json().catch(() => null)) as {
+        success?: boolean;
+        error?: string;
+      } | null;
 
-      if (web3Data.success) {
+      if (res.ok && data?.success) {
         setFormState("sent");
-
-        // Trigger auto-reply from server (Google Apps Script)
-        fetch("/api/contact", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: formData.name, email: formData.email }),
-        }).catch(() => {});
-
-        setFormData({ name: "", email: "", message: "" });
-      } else {
-        console.error("Web3Forms error:", web3Data);
-        setFormState("idle");
+        setFormData({ name: "", email: "", message: "", website: "" });
+        scheduleIdleReset(4000);
+        return;
       }
-    } catch (err) {
-      console.error("Contact form exception:", err);
-      setFormState("idle");
-    }
 
-    setTimeout(() => setFormState("idle"), 3000);
+      setFormState("error");
+      setErrorMessage(
+        data?.error || "Unable to send your message. Please try again."
+      );
+      scheduleIdleReset(5000);
+    } catch {
+      setFormState("error");
+      setErrorMessage("Network error. Please check your connection and try again.");
+      scheduleIdleReset(5000);
+    }
   };
 
   const socialLinks = [
@@ -77,7 +94,6 @@ export default function ContactPage() {
           />
 
           <div className="grid md:grid-cols-2 gap-12">
-            {/* Contact Info */}
             <ScrollReveal direction="left">
               <div className="space-y-8">
                 <div>
@@ -91,7 +107,6 @@ export default function ContactPage() {
                   </p>
                 </div>
 
-                {/* Social Links */}
                 <div className="space-y-4">
                   {socialLinks.map((social, i) => (
                     <motion.a
@@ -117,10 +132,23 @@ export default function ContactPage() {
               </div>
             </ScrollReveal>
 
-            {/* Contact Form */}
             <ScrollReveal direction="right">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Name Field */}
+              <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+                <div className="sr-only" aria-hidden="true">
+                  <label htmlFor="website">Website</label>
+                  <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData.website}
+                    onChange={(e) =>
+                      setFormData({ ...formData, website: e.target.value })
+                    }
+                  />
+                </div>
+
                 <div className="relative group">
                   <input
                     type="text"
@@ -130,6 +158,7 @@ export default function ContactPage() {
                       setFormData({ ...formData, name: e.target.value })
                     }
                     required
+                    maxLength={100}
                     className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,240,255,0.1)] transition-all duration-300"
                     placeholder="Name"
                   />
@@ -141,7 +170,6 @@ export default function ContactPage() {
                   </label>
                 </div>
 
-                {/* Email Field */}
                 <div className="relative group">
                   <input
                     type="email"
@@ -151,6 +179,7 @@ export default function ContactPage() {
                       setFormData({ ...formData, email: e.target.value })
                     }
                     required
+                    maxLength={254}
                     className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,240,255,0.1)] transition-all duration-300"
                     placeholder="Email"
                   />
@@ -162,7 +191,6 @@ export default function ContactPage() {
                   </label>
                 </div>
 
-                {/* Message Field */}
                 <div className="relative group">
                   <textarea
                     id="message"
@@ -171,6 +199,7 @@ export default function ContactPage() {
                       setFormData({ ...formData, message: e.target.value })
                     }
                     required
+                    maxLength={5000}
                     rows={5}
                     className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,240,255,0.1)] transition-all duration-300 resize-none"
                     placeholder="Message"
@@ -183,20 +212,29 @@ export default function ContactPage() {
                   </label>
                 </div>
 
-                {/* Submit Button */}
+                {errorMessage && (
+                  <p
+                    role="alert"
+                    className="flex items-start gap-2 text-sm text-red-400 font-body"
+                  >
+                    <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                    {errorMessage}
+                  </p>
+                )}
+
                 <motion.button
                   type="submit"
-                  disabled={formState !== "idle"}
+                  disabled={formState === "sending" || formState === "sent"}
                   className="w-full py-3.5 rounded-xl bg-primary text-background font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all duration-300 disabled:opacity-70 relative overflow-hidden"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {formState === "idle" && (
+                  {formState === "idle" || formState === "error" ? (
                     <>
                       <Send size={18} />
                       Send Message
                     </>
-                  )}
+                  ) : null}
                   {formState === "sending" && (
                     <motion.div
                       className="w-5 h-5 border-2 border-background border-t-transparent rounded-full"

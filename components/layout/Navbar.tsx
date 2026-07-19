@@ -20,10 +20,6 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    setIsMobileOpen(false);
-  }, [pathname]);
-
   return (
     <motion.header
       initial={{ y: -100 }}
@@ -37,7 +33,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="relative group">
           <motion.span
-            className="text-xl font-bold font-mono text-primary"
+            className="text-[clamp(0.95rem,3.8vw,1.25rem)] font-bold font-mono text-primary whitespace-nowrap"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -93,6 +89,8 @@ export function Navbar() {
           onClick={() => setIsMobileOpen(!isMobileOpen)}
           className="md:hidden text-text-primary p-2 rounded-lg"
           aria-label="Toggle menu"
+          aria-expanded={isMobileOpen}
+          aria-controls="mobile-navigation"
           whileTap={{ scale: 0.9 }}
         >
           <AnimatePresence mode="wait">
@@ -130,6 +128,7 @@ export function Navbar() {
             exit={{ opacity: 0, height: 0, y: -10 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="md:hidden glass border-t border-border-subtle overflow-hidden"
+            id="mobile-navigation"
           >
             <ul className="flex flex-col items-center gap-2 py-6">
               {NAV_LINKS.map((link, i) => (
@@ -142,6 +141,7 @@ export function Navbar() {
                 >
                   <Link
                     href={link.href}
+                    onClick={() => setIsMobileOpen(false)}
                     className={`text-lg font-medium px-6 py-2 rounded-lg transition-all ${
                       pathname === link.href
                         ? "text-primary bg-primary/10"

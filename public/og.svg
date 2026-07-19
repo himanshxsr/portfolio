@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#0a0a0f"/>
+  <circle cx="980" cy="120" r="220" fill="#00f0ff" fill-opacity="0.08"/>
+  <circle cx="180" cy="520" r="260" fill="#7b2ff7" fill-opacity="0.1"/>
+  <text x="80" y="250" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="700" fill="#ffffff">Himanshu Aashish</text>
+  <text x="80" y="320" font-family="Consolas, monospace" font-size="32" fill="#00f0ff">Full-Stack &amp; GenAI Developer</text>
+  <text x="80" y="390" font-family="Segoe UI, Arial, sans-serif" font-size="24" fill="#a0a0b0">Scalable web apps � real-time systems � AI-powered solutions</text>
+  <text x="80" y="520" font-family="Consolas, monospace" font-size="22" fill="#7b2ff7">himanshuaashish.dev</text>
+</svg>

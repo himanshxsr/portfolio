@@ -19,6 +19,5 @@ export const personalData = {
     email: "himanshuaashish4@gmail.com",
   },
   location: "Bhubaneswar, Odisha, India",
-  phone: "+91-8480090069",
   resumeUrl: "/resume.pdf",
 };

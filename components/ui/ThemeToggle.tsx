@@ -2,16 +2,27 @@
 
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Sun, Moon } from "lucide-react";
+
+const emptySubscribe = () => () => {};
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <span
+        className="inline-block p-2.5 w-[42px] h-[42px] rounded-full border border-border-subtle"
+        aria-hidden="true"
+      />
+    );
+  }
 
   const isDark = theme === "dark";
 

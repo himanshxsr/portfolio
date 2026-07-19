@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { motion, useSpring } from "framer-motion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
+const HOVER_SELECTOR =
+  "a, button, [role='button'], input, textarea, select";
+
 export function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -27,31 +30,30 @@ export function CustomCursor() {
 
     const handleMouseLeave = () => setIsVisible(false);
 
-    const handleElementHover = () => setIsHovering(true);
-    const handleElementLeave = () => setIsHovering(false);
+    const handlePointerOver = (e: Event) => {
+      const target = e.target as Element | null;
+      if (target?.closest?.(HOVER_SELECTOR)) {
+        setIsHovering(true);
+      }
+    };
+
+    const handlePointerOut = (e: Event) => {
+      const target = e.target as Element | null;
+      if (target?.closest?.(HOVER_SELECTOR)) {
+        setIsHovering(false);
+      }
+    };
 
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
-
-    // Use MutationObserver to handle dynamically added elements
-    const addHoverListeners = () => {
-      const hoverElements = document.querySelectorAll(
-        "a, button, [role='button'], input, textarea, select"
-      );
-      hoverElements.forEach((el) => {
-        el.addEventListener("mouseenter", handleElementHover);
-        el.addEventListener("mouseleave", handleElementLeave);
-      });
-    };
-
-    addHoverListeners();
-    const observer = new MutationObserver(addHoverListeners);
-    observer.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener("pointerover", handlePointerOver);
+    document.addEventListener("pointerout", handlePointerOut);
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
-      observer.disconnect();
+      document.removeEventListener("pointerover", handlePointerOver);
+      document.removeEventListener("pointerout", handlePointerOut);
     };
   }, [cursorX, cursorY, isMobile]);
 

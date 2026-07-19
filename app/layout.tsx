@@ -43,12 +43,21 @@ export const metadata: Metadata = {
     siteName: "Himanshu Aashish Portfolio",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og.svg",
+        width: 1200,
+        height: 630,
+        alt: "Himanshu Aashish — Full-Stack & GenAI Developer",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Himanshu Aashish | Full-Stack & GenAI Developer",
     description:
       "Full-Stack Developer & Generative AI Engineer building scalable web applications and AI-powered solutions.",
+    images: ["/og.svg"],
   },
   robots: {
     index: true,

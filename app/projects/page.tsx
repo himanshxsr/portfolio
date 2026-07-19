@@ -37,13 +37,18 @@ export default function ProjectsPage() {
             subtitle="A selection of things I've built"
           />
 
-          {/* Filter Buttons */}
           <ScrollReveal>
-            <div className="flex flex-wrap justify-center gap-2 mb-12">
+            <div
+              className="flex flex-wrap justify-center gap-2 mb-12"
+              role="group"
+              aria-label="Filter projects by category"
+            >
               {categories.map((cat) => (
                 <button
                   key={cat.id}
+                  type="button"
                   onClick={() => setActiveFilter(cat.id)}
+                  aria-pressed={activeFilter === cat.id}
                   className={`relative px-5 py-2.5 rounded-full text-sm font-medium transition-colors duration-200 ${
                     activeFilter === cat.id
                       ? "text-background"
@@ -67,7 +72,6 @@ export default function ProjectsPage() {
             </div>
           </ScrollReveal>
 
-          {/* Projects Grid */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeFilter}
@@ -85,10 +89,8 @@ export default function ProjectsPage() {
                   transition={{ delay: i * 0.1, duration: 0.4 }}
                   layout
                 >
-                  <Link href={`/projects/${project.id}`}>
                   <GlowCard className="h-full flex flex-col">
-                    {/* Project Image */}
-                    <div className="h-40 rounded-lg bg-surface-elevated mb-4 overflow-hidden relative group">
+                    <div className="h-40 rounded-lg bg-surface-elevated mb-4 overflow-hidden relative">
                       {project.image ? (
                         <Image
                           src={project.image}
@@ -103,50 +105,22 @@ export default function ProjectsPage() {
                           </span>
                         </div>
                       )}
-                      {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                        {project.liveUrl && (
-                          <span
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              window.open(project.liveUrl, "_blank");
-                            }}
-                            className="p-2 rounded-full bg-primary text-background hover:scale-110 transition-transform cursor-pointer"
-                            role="button"
-                            aria-label="Live demo"
-                          >
-                            <ExternalLink size={18} />
-                          </span>
-                        )}
-                        {project.githubUrl && (
-                          <span
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              window.open(project.githubUrl, "_blank");
-                            }}
-                            className="p-2 rounded-full bg-surface-elevated text-text-primary border border-border-subtle hover:scale-110 transition-transform cursor-pointer"
-                            role="button"
-                            aria-label="Source code"
-                          >
-                            <CodeXml size={18} />
-                          </span>
-                        )}
-                      </div>
                     </div>
 
-                    {/* Content */}
                     <div className="flex-1 flex flex-col">
-                      <h3 className="text-lg font-bold text-text-primary mb-2">
-                        {project.title}
-                      </h3>
+                      <Link
+                        href={`/projects/${project.id}`}
+                        className="group"
+                      >
+                        <h3 className="text-lg font-bold text-text-primary mb-2 group-hover:text-primary transition-colors">
+                          {project.title}
+                        </h3>
+                      </Link>
                       <p className="text-text-secondary text-sm font-body mb-4 flex-1">
                         {project.description}
                       </p>
 
-                      {/* Tech Stack */}
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 mb-4">
                         {project.tech.slice(0, 4).map((tech) => (
                           <span
                             key={tech}
@@ -161,9 +135,39 @@ export default function ProjectsPage() {
                           </span>
                         )}
                       </div>
+
+                      <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border-subtle">
+                        <Link
+                          href={`/projects/${project.id}`}
+                          className="text-sm font-mono text-primary hover:underline"
+                        >
+                          Case study
+                        </Link>
+                        {project.liveUrl && (
+                          <a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-sm font-mono text-text-secondary hover:text-primary transition-colors"
+                          >
+                            <ExternalLink size={14} />
+                            Live
+                          </a>
+                        )}
+                        {project.githubUrl && (
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-sm font-mono text-text-secondary hover:text-primary transition-colors"
+                          >
+                            <CodeXml size={14} />
+                            Source
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </GlowCard>
-                  </Link>
                 </motion.div>
               ))}
             </motion.div>
