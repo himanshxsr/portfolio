@@ -1,4 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Himanshu Aashish Portfolio
+
+Next.js portfolio with a Supabase-backed admin CMS. Once deployed, content,
+SEO, media, messages, and analytics are managed at `/admin` without changing
+code or pushing a new deployment.
+
+## Admin CMS setup
+
+1. Create a Supabase project.
+2. Run `supabase/migrations/0001_portfolio_cms.sql` in the Supabase SQL editor
+   (or with the Supabase CLI).
+3. Copy `.env.example` to `.env.local` and fill the Supabase URL, publishable
+   key, service-role key, storage bucket, and contact hash secret.
+4. Temporarily set `ADMIN_EMAIL` and a 12+ character `ADMIN_PASSWORD`, then run:
+
+```bash
+npm run cms:create-admin
+npm run cms:seed
+```
+
+5. Remove `ADMIN_PASSWORD` from local and deployment environments.
+6. Configure the same non-setup variables in Vercel and deploy once.
+7. Sign in at `/admin/login`.
+
+Public signup should remain disabled in Supabase Auth. The service-role key must
+never use a `NEXT_PUBLIC_` prefix.
+
+## Publishing workflow
+
+Admin edits are saved as private drafts. Preview validates the draft without
+exposing it publicly. Publish copies the draft into the public snapshot and
+revalidates affected routes immediately.
 
 ## Getting Started
 

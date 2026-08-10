@@ -5,13 +5,15 @@ import { motion } from "framer-motion";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { personalData } from "@/data/personal";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 import { Send, CheckCircle, Mail, AlertCircle } from "lucide-react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
 type FormState = "idle" | "sending" | "sent" | "error";
 
 export default function ContactPage() {
+  const { profile: personalData, pages } = usePortfolioContent();
+  const page = pages.contact;
   const [formState, setFormState] = useState<FormState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -88,9 +90,12 @@ export default function ContactPage() {
       <section className="min-h-screen py-20 px-6 dot-grid">
         <div className="mx-auto max-w-4xl">
           <SectionHeader
-            number="05"
-            title="Get In Touch"
-            subtitle="Have a project in mind? Let's build something together."
+            number={String(page?.sectionNumber ?? "05")}
+            title={String(page?.title ?? "Get In Touch")}
+            subtitle={String(
+              page?.subtitle ??
+                "Have a project in mind? Let's build something together."
+            )}
           />
 
           <div className="grid md:grid-cols-2 gap-12">

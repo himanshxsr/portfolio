@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { blogPosts } from "@/data/blog";
 import { BlogPostView } from "@/components/blog/BlogPostView";
+import { getBlogPost, getBlogPosts } from "@/lib/content/loaders";
 
 type BlogPostPageProps = {
   params: Promise<{ id: string }>;
 };
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({ id: post.id }));
+export async function generateStaticParams() {
+  const posts = await getBlogPosts();
+  return posts.map((post) => ({ id: post.id }));
 }
 
 export async function generateMetadata({
   params,
 }: BlogPostPageProps): Promise<Metadata> {
   const { id } = await params;
-  const post = blogPosts.find((item) => item.id === id);
+  const post = await getBlogPost(id);
 
   if (!post) {
     return { title: "Post Not Found" };
@@ -35,7 +36,7 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { id } = await params;
-  const post = blogPosts.find((item) => item.id === id);
+  const post = await getBlogPost(id);
 
   if (!post) {
     notFound();

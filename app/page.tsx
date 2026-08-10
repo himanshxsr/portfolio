@@ -11,8 +11,7 @@ import { TechMarquee } from "@/components/animations/TechMarquee";
 import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
 import { TypingCodeCard } from "@/components/animations/TypingCodeCard";
 import { GlowCard } from "@/components/ui/GlowCard";
-import { personalData } from "@/data/personal";
-import { projects } from "@/data/projects";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ChevronDown, Download, Mail, Send } from "lucide-react";
 
@@ -21,9 +20,12 @@ const HeroScene = dynamic(
   { ssr: false }
 );
 
-const featuredProjects = projects.filter((project) => project.featured).slice(0, 3);
-
 export default function Home() {
+  const { profile: personalData, projects, pages } = usePortfolioContent();
+  const home = pages.home;
+  const featuredProjects = projects
+    .filter((project) => project.featured)
+    .slice(0, 3);
   const prefersReducedMotion = useReducedMotion();
   const delay = (seconds: number) => (prefersReducedMotion ? 0 : seconds);
 
@@ -39,7 +41,7 @@ export default function Home() {
             transition={{ delay: delay(0.2), duration: 0.5 }}
             className="text-primary font-mono text-sm md:text-base mb-4"
           >
-            {"// Hello, World! I'm"}
+            {String(home?.heroGreeting ?? "// Hello, World! I'm")}
           </motion.p>
 
           <motion.h1
@@ -66,8 +68,10 @@ export default function Home() {
             transition={{ delay: delay(0.65), duration: 0.5 }}
             className="text-text-secondary font-body text-base md:text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            I build scalable web applications, real-time multiplayer systems, and
-            AI-powered solutions that drive business impact.
+            {String(
+              home?.heroDescription ??
+                "I build scalable web applications, real-time multiplayer systems, and AI-powered solutions that drive business impact."
+            )}
           </motion.p>
 
           <motion.div
@@ -81,21 +85,21 @@ export default function Home() {
               className="bg-primary text-background font-semibold hover:bg-primary/90"
             >
               <Send size={18} />
-              View My Work
+              {String(home?.workCtaLabel ?? "View My Work")}
             </MagneticButton>
             <MagneticButton
               href={personalData.resumeUrl}
               className="border border-primary/30 text-primary hover:bg-primary/10"
             >
               <Download size={18} />
-              Download Resume
+              {String(home?.resumeCtaLabel ?? "Download Resume")}
             </MagneticButton>
             <MagneticButton
               href="/contact"
               className="border border-primary/30 text-primary hover:bg-primary/10"
             >
               <Mail size={18} />
-              Get In Touch
+              {String(home?.contactCtaLabel ?? "Get In Touch")}
             </MagneticButton>
           </motion.div>
         </div>
@@ -156,10 +160,10 @@ export default function Home() {
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
               <div>
                 <span className="font-mono text-sm text-primary block mb-2">
-                  {"// Featured work"}
+                  {String(home?.featuredEyebrow ?? "// Featured work")}
                 </span>
                 <h2 className="text-3xl md:text-4xl font-bold text-text-primary">
-                  Selected projects
+                  {String(home?.featuredTitle ?? "Selected projects")}
                 </h2>
               </div>
               <MagneticButton
@@ -212,7 +216,7 @@ export default function Home() {
               <ScrollReveal direction="right">
                 <span className="font-mono text-sm text-primary block mb-2">{"// 01. About"}</span>
                 <h2 className="text-3xl md:text-4xl font-bold text-text-primary">
-                  A bit about me
+                  {String(home?.aboutTitle ?? "A bit about me")}
                 </h2>
               </ScrollReveal>
 
@@ -252,20 +256,22 @@ export default function Home() {
         <div className="mx-auto max-w-3xl text-center relative z-10">
           <ScrollReveal>
             <span className="font-mono text-sm text-primary block mb-4">
-              {"// Let's connect"}
+              {String(home?.contactEyebrow ?? "// Let's connect")}
             </span>
           </ScrollReveal>
 
           <ScrollReveal delay={0.1}>
             <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-6">
-              Have a project in mind?
+              {String(home?.contactTitle ?? "Have a project in mind?")}
             </h2>
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
             <p className="text-text-secondary font-body text-lg leading-relaxed mb-10 max-w-xl mx-auto">
-              I&apos;m always open to discussing new projects, creative ideas, or
-              opportunities to bring your vision to life. Let&apos;s build something great together.
+              {String(
+                home?.contactDescription ??
+                  "I'm always open to discussing new projects, creative ideas, or opportunities to bring your vision to life. Let's build something great together."
+              )}
             </p>
           </ScrollReveal>
 

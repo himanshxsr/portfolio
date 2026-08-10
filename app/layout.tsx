@@ -2,6 +2,18 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ClientLayout } from "@/components/providers/ClientLayout";
+import { ContentProvider } from "@/components/providers/ContentProvider";
+import {
+  getBlogPosts,
+  getEducation,
+  getExperiences,
+  getNavigation,
+  getPages,
+  getProfile,
+  getProjects,
+  getSiteSettings,
+  getSkillCategories,
+} from "@/lib/content/loaders";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -19,84 +31,77 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Himanshu Aashish | Full-Stack & GenAI Developer",
-  description:
-    "Full-Stack Developer & Generative AI Engineer building scalable web applications, real-time systems, and AI-powered solutions. Explore my portfolio.",
-  keywords: [
-    "Full-Stack Developer",
-    "Generative AI",
-    "React",
-    "Next.js",
-    "TypeScript",
-    "Node.js",
-    "AWS",
-    "LangChain",
-    "Portfolio",
-  ],
-  metadataBase: new URL("https://himanshuaashish.dev"),
-  openGraph: {
-    title: "Himanshu Aashish | Full-Stack & GenAI Developer",
-    description:
-      "Full-Stack Developer & Generative AI Engineer building scalable web applications, real-time systems, and AI-powered solutions.",
-    url: "https://himanshuaashish.dev",
-    siteName: "Himanshu Aashish Portfolio",
-    locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: "/og.svg",
-        width: 1200,
-        height: 630,
-        alt: "Himanshu Aashish — Full-Stack & GenAI Developer",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Himanshu Aashish | Full-Stack & GenAI Developer",
-    description:
-      "Full-Stack Developer & Generative AI Engineer building scalable web applications and AI-powered solutions.",
-    images: ["/og.svg"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteSettings();
+  const metadataBase = new URL(site.baseUrl);
+  return {
+    title: site.title,
+    description: site.description,
+    keywords: site.keywords,
+    metadataBase,
+    openGraph: {
+      title: site.title,
+      description: site.description,
+      url: site.baseUrl,
+      siteName: site.title,
+      locale: site.locale,
+      type: "website",
+      images: [{ url: site.ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: site.title,
+      description: site.description,
+      images: [site.ogImage],
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Himanshu Aashish",
-  url: "https://himanshuaashish.dev",
-  jobTitle: "Full-Stack Developer & Generative AI Engineer",
-  worksFor: {
-    "@type": "Organization",
-    name: "Elisium Space Pvt. Ltd.",
-  },
-  sameAs: [
-    "https://github.com/himanshxsr",
-    "https://linkedin.com/in/himanshu-aashish-0a5554243",
-  ],
-  knowsAbout: [
-    "React.js",
-    "Next.js",
-    "Node.js",
-    "TypeScript",
-    "MongoDB",
-    "AWS",
-    "LangChain",
-    "Socket.io",
-    "Generative AI",
-  ],
-};
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [
+    profile,
+    projects,
+    blogPosts,
+    experiences,
+    skillCategories,
+    navigation,
+    site,
+    pages,
+    education,
+  ] =
+    await Promise.all([
+      getProfile(),
+      getProjects(),
+      getBlogPosts(),
+      getExperiences(),
+      getSkillCategories(),
+      getNavigation(),
+      getSiteSettings(),
+      getPages(),
+      getEducation(),
+    ]);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: profile.name,
+    url: site.baseUrl,
+    jobTitle: profile.roles[0],
+    worksFor: {
+      "@type": "Organization",
+      name: "Elisium Space Pvt. Ltd.",
+    },
+    sameAs: [profile.social.github, profile.social.linkedin],
+    knowsAbout: skillCategories.flatMap((category) =>
+      category.skills.map((skill) => skill.name)
+    ),
+  };
+
   return (
     <html
       lang="en"
@@ -111,7 +116,21 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <ThemeProvider>
-          <ClientLayout>{children}</ClientLayout>
+          <ContentProvider
+            value={{
+              site,
+              profile,
+              projects,
+              blogPosts,
+              experiences,
+              skillCategories,
+              navigation,
+              pages,
+              education,
+            }}
+          >
+            <ClientLayout>{children}</ClientLayout>
+          </ContentProvider>
         </ThemeProvider>
       </body>
     </html>

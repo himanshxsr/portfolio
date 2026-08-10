@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV_LINKS } from "@/lib/constants";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 
 export function Navbar() {
+  const { navigation: NAV_LINKS, site } = usePortfolioContent();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
@@ -37,7 +38,7 @@ export function Navbar() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {"<dev_himansh />"}
+            {site.brandMark ?? "<dev_himansh />"}
           </motion.span>
           {/* Logo glow on hover */}
           <motion.div

@@ -3,15 +3,15 @@
 import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
-import { personalData } from "@/data/personal";
-
-const socialIcons = [
-  { icon: FaGithub, href: personalData.social.github, label: "GitHub" },
-  { icon: FaLinkedinIn, href: personalData.social.linkedin, label: "LinkedIn" },
-  { icon: Mail, href: `mailto:${personalData.social.email}`, label: "Email" },
-];
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 
 export function Footer() {
+  const { profile: personalData } = usePortfolioContent();
+  const socialIcons = [
+    { icon: FaGithub, href: personalData.social.github, label: "GitHub" },
+    { icon: FaLinkedinIn, href: personalData.social.linkedin, label: "LinkedIn" },
+    { icon: Mail, href: `mailto:${personalData.social.email}`, label: "Email" },
+  ];
   return (
     <footer className="border-t border-border-subtle py-12 px-6">
       <div className="mx-auto max-w-7xl flex flex-col items-center gap-6">

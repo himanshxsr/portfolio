@@ -4,8 +4,11 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimeWave } from "@/components/animations/AnimeWave";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 
 export function Preloader() {
+  const { site, pages } = usePortfolioContent();
+  const uiCopy = pages.loading;
   const prefersReducedMotion = useReducedMotion();
   const [elapsed, setElapsed] = useState(false);
 
@@ -37,7 +40,7 @@ export function Preloader() {
               }}
               className="w-full text-center font-mono font-bold text-primary whitespace-nowrap text-[clamp(1.35rem,7.2vw,3rem)] leading-none tracking-tight"
             >
-              {"<dev_himansh />"}
+              {site.brandMark ?? "<dev_himansh />"}
             </motion.div>
 
             <motion.div className="w-full max-w-48 h-0.5 bg-surface-elevated rounded-full overflow-hidden">
@@ -57,7 +60,7 @@ export function Preloader() {
               transition={{ delay: 0.2 }}
               className="text-text-secondary text-xs sm:text-sm font-mono"
             >
-              Initializing...
+              {String(uiCopy?.label ?? "Initializing...")}
             </motion.p>
           </div>
         </motion.div>

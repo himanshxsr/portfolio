@@ -6,18 +6,22 @@ import { PageTransition } from "@/components/animations/PageTransition";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GlowCard } from "@/components/ui/GlowCard";
-import { blogPosts } from "@/data/blog";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 import { Calendar, Clock } from "lucide-react";
 
 export default function BlogPage() {
+  const { blogPosts, pages } = usePortfolioContent();
+  const page = pages.blog;
   return (
     <PageTransition>
       <section className="min-h-screen py-20 px-6 dot-grid">
         <div className="mx-auto max-w-4xl">
           <SectionHeader
-            number="06"
-            title="Blog"
-            subtitle="Thoughts on development, architecture, and AI"
+            number={String(page?.sectionNumber ?? "06")}
+            title={String(page?.title ?? "Blog")}
+            subtitle={String(
+              page?.subtitle ?? "Thoughts on development, architecture, and AI"
+            )}
           />
 
           <div className="space-y-6">

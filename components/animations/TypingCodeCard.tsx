@@ -1,25 +1,13 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { motion, useInView } from "framer-motion";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 
 interface CodeLine {
   text: string;
   color: string;
 }
-
-const codeLines: CodeLine[] = [
-  { text: "// who am i", color: "text-text-secondary/50" },
-  { text: "const developer = {", color: "mixed" },
-  { text: '  name: "Himanshu Aashish",', color: "mixed" },
-  { text: '  role: "Full-Stack & GenAI Dev",', color: "mixed" },
-  { text: '  company: "Elisium Space",', color: "mixed" },
-  { text: '  stack: ["MERN", "AWS", "GenAI"],', color: "mixed" },
-  { text: '  experience: 2+ years,', color: "mixed" },
-  { text: '  passion: "Building things",', color: "mixed" },
-  { text: "  available: true", color: "mixed" },
-  { text: "}", color: "text-text-secondary" },
-];
 
 function colorize(text: string): React.ReactNode[] {
   const parts: React.ReactNode[] = [];
@@ -102,6 +90,32 @@ function colorize(text: string): React.ReactNode[] {
 }
 
 export function TypingCodeCard({ className = "" }: { className?: string }) {
+  const { profile } = usePortfolioContent();
+  const codeLines = useMemo<CodeLine[]>(
+    () => [
+      { text: "// who am i", color: "text-text-secondary/50" },
+      { text: "const developer = {", color: "mixed" },
+      { text: `  name: "${profile.name}",`, color: "mixed" },
+      { text: `  role: "${profile.roles[0] ?? "Developer"}",`, color: "mixed" },
+      {
+        text: `  company: "${String(
+          "currentOrganization" in profile
+            ? profile.currentOrganization
+            : "Elisium Space"
+        )}",`,
+        color: "mixed",
+      },
+      { text: '  stack: ["MERN", "AWS", "GenAI"],', color: "mixed" },
+      {
+        text: `  experience: ${profile.stats.yearsExperience}+ years,`,
+        color: "mixed",
+      },
+      { text: '  passion: "Building things",', color: "mixed" },
+      { text: "  available: true", color: "mixed" },
+      { text: "}", color: "text-text-secondary" },
+    ],
+    [profile]
+  );
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [displayedChars, setDisplayedChars] = useState(0);

@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { skillCategories } from "@/data/skills";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 
 export default function SkillsPage() {
+  const { skillCategories, pages } = usePortfolioContent();
+  const page = pages.skills;
   const [activeCategory, setActiveCategory] = useState(skillCategories[0].id);
 
   const currentSkills =
@@ -18,9 +20,12 @@ export default function SkillsPage() {
       <section className="min-h-screen py-20 px-6 dot-grid">
         <div className="mx-auto max-w-6xl">
           <SectionHeader
-            number="02"
-            title="Skills & Technologies"
-            subtitle="The tools and technologies I use to bring ideas to life"
+            number={String(page?.sectionNumber ?? "02")}
+            title={String(page?.title ?? "Skills & Technologies")}
+            subtitle={String(
+              page?.subtitle ??
+                "The tools and technologies I use to bring ideas to life"
+            )}
           />
 
           {/* Category Tabs */}

@@ -4,17 +4,21 @@ import { motion } from "framer-motion";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { experiences } from "@/data/experience";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 
 export default function ExperiencePage() {
+  const { experiences, pages } = usePortfolioContent();
+  const page = pages.experience;
   return (
     <PageTransition>
       <section className="min-h-screen py-20 px-6 dot-grid">
         <div className="mx-auto max-w-4xl">
           <SectionHeader
-            number="04"
-            title="Experience"
-            subtitle="My professional journey so far"
+            number={String(page?.sectionNumber ?? "04")}
+            title={String(page?.title ?? "Experience")}
+            subtitle={String(
+              page?.subtitle ?? "My professional journey so far"
+            )}
           />
 
           {/* Timeline */}

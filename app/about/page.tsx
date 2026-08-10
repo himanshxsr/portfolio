@@ -6,25 +6,28 @@ import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { TypingCodeCard } from "@/components/animations/TypingCodeCard";
-import { personalData } from "@/data/personal";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 import { Download } from "lucide-react";
 
-const stats = [
-  { label: "Years Experience", value: personalData.stats.yearsExperience, suffix: "+" },
-  { label: "Projects Completed", value: personalData.stats.projectsCompleted, suffix: "+" },
-  { label: "Technologies", value: personalData.stats.technologiesUsed, suffix: "+" },
-  { label: "Lines of Code", value: personalData.stats.linesOfCode, suffix: "+" },
-];
-
 export default function AboutPage() {
+  const { profile: personalData, education, pages } = usePortfolioContent();
+  const page = pages.about;
+  const stats = [
+    { label: "Years Experience", value: personalData.stats.yearsExperience, suffix: "+" },
+    { label: "Projects Completed", value: personalData.stats.projectsCompleted, suffix: "+" },
+    { label: "Technologies", value: personalData.stats.technologiesUsed, suffix: "+" },
+    { label: "Lines of Code", value: personalData.stats.linesOfCode, suffix: "+" },
+  ];
   return (
     <PageTransition>
       <section className="min-h-screen py-20 px-6 dot-grid">
         <div className="mx-auto max-w-6xl">
           <SectionHeader
-            number="01"
-            title="About Me"
-            subtitle="Get to know the developer behind the code"
+            number={String(page?.sectionNumber ?? "01")}
+            title={String(page?.title ?? "About Me")}
+            subtitle={String(
+              page?.subtitle ?? "Get to know the developer behind the code"
+            )}
           />
 
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -111,32 +114,24 @@ export default function AboutPage() {
               </h3>
             </ScrollReveal>
             <div className="grid md:grid-cols-2 gap-6">
-              <ScrollReveal delay={0.1}>
-                <div className="p-6 rounded-xl bg-surface border border-border-subtle">
-                  <span className="text-xs font-mono text-primary mb-2 block">
-                    Graduation: 2026
-                  </span>
-                  <h4 className="text-lg font-bold text-text-primary mb-1">
-                    B.Tech – Electronics & Communication Engineering
-                  </h4>
-                  <p className="text-text-secondary text-sm">
-                    Rustam Ji Institute of Technology (RJIT), BSF Academy, Gwalior, MP
-                  </p>
-                </div>
-              </ScrollReveal>
-              <ScrollReveal delay={0.2}>
-                <div className="p-6 rounded-xl bg-surface border border-border-subtle">
-                  <span className="text-xs font-mono text-primary mb-2 block">
-                    Class XII – Intermediate
-                  </span>
-                  <h4 className="text-lg font-bold text-text-primary mb-1">
-                    All India Senior School Certificate Examination
-                  </h4>
-                  <p className="text-text-secondary text-sm">
-                    Shree Krishna International School, Bhubaneswar, Odisha
-                  </p>
-                </div>
-              </ScrollReveal>
+              {education.map((item, index) => (
+                <ScrollReveal key={item.id} delay={(index + 1) * 0.1}>
+                  <div className="p-6 rounded-xl bg-surface border border-border-subtle">
+                    <span className="text-xs font-mono text-primary mb-2 block">
+                      {item.description ||
+                        (item.endDate ? `Graduation: ${item.endDate}` : "")}
+                    </span>
+                    <h4 className="text-lg font-bold text-text-primary mb-1">
+                      {item.qualification}
+                    </h4>
+                    <p className="text-text-secondary text-sm">
+                      {[item.institution, item.location]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </p>
+                  </div>
+                </ScrollReveal>
+              ))}
             </div>
           </div>
         </div>

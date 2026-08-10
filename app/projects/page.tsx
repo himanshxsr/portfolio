@@ -6,7 +6,7 @@ import { PageTransition } from "@/components/animations/PageTransition";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GlowCard } from "@/components/ui/GlowCard";
-import { projects } from "@/data/projects";
+import { usePortfolioContent } from "@/components/providers/ContentProvider";
 import { ExternalLink, CodeXml } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,6 +20,8 @@ const categories = [
 ];
 
 export default function ProjectsPage() {
+  const { projects, pages } = usePortfolioContent();
+  const page = pages.projects;
   const [activeFilter, setActiveFilter] = useState("all");
 
   const filteredProjects =
@@ -32,9 +34,9 @@ export default function ProjectsPage() {
       <section className="min-h-screen py-20 px-6 dot-grid">
         <div className="mx-auto max-w-6xl">
           <SectionHeader
-            number="03"
-            title="Projects"
-            subtitle="A selection of things I've built"
+            number={String(page?.sectionNumber ?? "03")}
+            title={String(page?.title ?? "Projects")}
+            subtitle={String(page?.subtitle ?? "A selection of things I've built")}
           />
 
           <ScrollReveal>
