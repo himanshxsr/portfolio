@@ -82,7 +82,7 @@ export const projects: Project[] = [
     tech: ["Next.js", "Three.js", "Framer Motion", "Tailwind CSS", "TypeScript"],
     category: "frontend",
     image: "/3d-portfolio.svg",
-    liveUrl: "https://himanshuaashish.dev",
+    liveUrl: "https://himansh.co.in",
     githubUrl: "https://github.com/himanshxsr/portfolio",
     featured: false,
   },

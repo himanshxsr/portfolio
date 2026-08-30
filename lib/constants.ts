@@ -3,7 +3,7 @@ export const SITE_CONFIG = {
   title: "Full-Stack & Generative AI Developer",
   description:
     "Full-Stack Developer & Generative AI Engineer building scalable web applications, real-time systems, and AI-powered solutions.",
-  url: "https://himanshuaashish.dev",
+  url: "https://himansh.co.in",
 };
 
 export const NAV_LINKS = [

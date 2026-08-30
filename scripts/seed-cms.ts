@@ -22,11 +22,12 @@ const supabase = createClient(url, serviceKey, {
 });
 
 async function assertSupabaseReachable() {
+  const apiKey = serviceKey as string;
   try {
     const response = await fetch(`${url}/rest/v1/`, {
       headers: {
-        apikey: serviceKey,
-        Authorization: `Bearer ${serviceKey}`,
+        apikey: apiKey,
+        Authorization: `Bearer ${apiKey}`,
       },
     });
     if (response.status >= 500) {

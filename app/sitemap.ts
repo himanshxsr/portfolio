@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
-import { getBlogPosts, getProjects } from "@/lib/content/loaders";
+import { getBlogPosts, getProjects, getSiteSettings } from "@/lib/content/loaders";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://himanshuaashish.dev";
+  const { baseUrl } = await getSiteSettings();
   const [blogPosts, projects] = await Promise.all([
     getBlogPosts(),
     getProjects(),
