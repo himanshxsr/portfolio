@@ -59,6 +59,7 @@ export default function ContactPage() {
       const data = (await res.json().catch(() => null)) as {
         success?: boolean;
         stored?: boolean;
+        id?: string | null;
         error?: string;
       } | null;
 
@@ -76,6 +77,18 @@ export default function ContactPage() {
         email: formData.email,
         message: formData.message,
       });
+
+      if (data.id) {
+        fetch("/api/contact/delivery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: data.id,
+            delivered: emailResult.ok,
+            error: emailResult.reason,
+          }),
+        }).catch(() => undefined);
+      }
 
       if (!emailResult.ok && !data.stored) {
         setFormState("error");

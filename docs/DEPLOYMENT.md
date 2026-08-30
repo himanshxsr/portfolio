@@ -26,6 +26,7 @@ Copy [`.env.example`](../.env.example) to `.env.local` for local development. On
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only |
 | `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET` | Public (default: `portfolio-assets`) |
 | `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | Public (browser contact email) |
+| `WEB3FORMS_KEY` | Server fallback for contact config API (same UUID) |
 | `CONTACT_HASH_SECRET` | Server only |
 | `GOOGLE_APPS_SCRIPT_URL` | Server only (optional) |
 

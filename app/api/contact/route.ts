@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, stored: false });
     }
 
-    return NextResponse.json({ success: true, stored: Boolean(messageId) });
+    return NextResponse.json({ success: true, stored: Boolean(messageId), id: messageId });
   } catch (error) {
     console.error("Contact API error", error);
     return NextResponse.json(
