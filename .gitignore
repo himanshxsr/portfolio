@@ -31,7 +31,16 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.*
+!.env.example
+
+# local seed media (uploaded to Supabase Storage, not committed)
+/seed/assets/*
+!/seed/assets/.gitkeep
+
+# editor
+.vscode/
 
 # vercel
 .vercel

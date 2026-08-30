@@ -13,6 +13,8 @@ if (supabaseUrl) {
 }
 
 const nextConfig: NextConfig = {
+  // Allow LAN access during `next dev` (phone/other device on same network).
+  allowedDevOrigins: ["172.20.205.39"],
   images: {
     remotePatterns,
   },

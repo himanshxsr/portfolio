@@ -88,7 +88,7 @@ export async function getSiteSettings() {
       title: "Himanshu Aashish | Full-Stack & GenAI Developer",
       description:
         "Full-Stack Developer & Generative AI Engineer building scalable web applications, real-time systems, and AI-powered solutions. Explore my portfolio.",
-      baseUrl: "https://himanshuaashish.dev",
+      baseUrl: "https://himansh.co.in",
       language: "en",
       locale: "en_US",
       brandMark: "<dev_himansh />",
@@ -103,7 +103,7 @@ export async function getSiteSettings() {
         "LangChain",
         "Portfolio",
       ],
-      ogImage: "/og.svg",
+      ogImage: "",
     };
   }
   return entry.data as {

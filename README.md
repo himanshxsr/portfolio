@@ -1,67 +1,87 @@
-# Himanshu Aashish Portfolio
+# Himanshu Aashish — Portfolio
 
-Next.js portfolio with a Supabase-backed admin CMS. Once deployed, content,
-SEO, media, messages, and analytics are managed at `/admin` without changing
-code or pushing a new deployment.
+Production portfolio for a Full-Stack and Generative AI engineer. Built with Next.js App Router, a Supabase-backed CMS, and a draft → preview → publish workflow so content, media, SEO, and analytics can be updated without redeploying code.
 
-## Admin CMS setup
+**Live:** [himansh.co.in](https://himansh.co.in)
 
-1. Create a Supabase project.
-2. Run `supabase/migrations/0001_portfolio_cms.sql` in the Supabase SQL editor
-   (or with the Supabase CLI).
-3. Copy `.env.example` to `.env.local` and fill the Supabase URL, publishable
-   key, service-role key, storage bucket, and contact hash secret.
-4. Temporarily set `ADMIN_EMAIL` and a 12+ character `ADMIN_PASSWORD`, then run:
+## Highlights
 
-```bash
-npm run cms:create-admin
-npm run cms:seed
+- Server-rendered App Router architecture with typed content loaders and cache revalidation on publish
+- Admin CMS at `/admin` for projects, profile, pages, navigation, blog, media, messages, and analytics
+- Supabase Postgres for structured content; Supabase Storage for images and PDFs (not binary blobs in Postgres)
+- Hardened contact pipeline with validation, honeypot, rate limiting, and inbox persistence
+- Motion-rich UI (Framer Motion, Anime.js, React Three Fiber) with reduced-motion support
+
+## Tech stack
+
+| Layer | Tools |
+| --- | --- |
+| Framework | Next.js 16, React 19, TypeScript |
+| Styling | Tailwind CSS 4 |
+| CMS | Supabase (Postgres + Auth + Storage + RLS) |
+| Animation | Framer Motion, Anime.js, Three.js |
+| Deployment | Vercel |
+
+## Architecture
+
+```text
+Public site ──► lib/content/loaders ──► published_content (Postgres)
+Admin /admin ──► draft edits ──► publish ──► revalidatePath
+Media uploads ──► Supabase Storage ──► public URLs referenced in CMS JSON
+Contact form ──► /api/contact ──► Web3Forms + contact_messages table
 ```
 
-5. Remove `ADMIN_PASSWORD` from local and deployment environments.
-6. Configure the same non-setup variables in Vercel and deploy once.
-7. Sign in at `/admin/login`.
+Content lives in Postgres. Binary assets (project images, résumé PDF, OG image) live in **Supabase Storage** and are referenced by URL in CMS entries.
 
-Public signup should remain disabled in Supabase Auth. The service-role key must
-never use a `NEXT_PUBLIC_` prefix.
+## Project structure
 
-## Publishing workflow
+```text
+app/              Routes (public pages, admin dashboard, API)
+components/       UI, layout, animations, admin editors
+lib/content/      CMS loaders, schemas, publish queries
+lib/supabase/     Browser, server, and service clients
+supabase/         SQL migrations (schema, RLS, storage policies)
+scripts/          Admin bootstrap and CMS seed utilities
+seed/assets/      Local-only seed media (gitignored; uploaded to Storage)
+docs/             Deployment and CMS setup guide
+```
 
-Admin edits are saved as private drafts. Preview validates the draft without
-exposing it publicly. Publish copies the draft into the public snapshot and
-revalidates affected routes immediately.
-
-## Getting Started
-
-First, run the development server:
+## Local development
 
 ```bash
+git clone https://github.com/himanshxsr/portfolio.git
+cd portfolio
+npm install
+cp .env.example .env.local
+```
+
+Fill `.env.local`, run Supabase migrations, then:
+
+```bash
+npm run cms:create-admin   # one-time
+npm run cms:seed           # uploads seed/assets/* to Storage + seeds CMS
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Admin sign-in: [http://localhost:3000/admin/login](http://localhost:3000/admin/login).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Place seed media files in `seed/assets/` before running `cms:seed` (project SVGs, `og.svg`, `resume.pdf`). That folder is intentionally **not** committed to Git.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript check |
+| `npm run cms:create-admin` | Create single admin user |
+| `npm run cms:seed` | Upload seed assets + seed published CMS content |
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Deploy on Vercel with environment variables from [`.env.example`](.env.example). Full Supabase, DNS, and CMS setup: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private portfolio project. All rights reserved.
