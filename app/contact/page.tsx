@@ -6,6 +6,7 @@ import { PageTransition } from "@/components/animations/PageTransition";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { usePortfolioContent } from "@/components/providers/ContentProvider";
+import { submitWeb3Form } from "@/lib/contact/web3forms";
 import { Send, CheckCircle, Mail, AlertCircle } from "lucide-react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
@@ -57,21 +58,37 @@ export default function ContactPage() {
 
       const data = (await res.json().catch(() => null)) as {
         success?: boolean;
+        stored?: boolean;
         error?: string;
       } | null;
 
-      if (res.ok && data?.success) {
-        setFormState("sent");
-        setFormData({ name: "", email: "", message: "", website: "" });
-        scheduleIdleReset(4000);
+      if (!res.ok || !data?.success) {
+        setFormState("error");
+        setErrorMessage(
+          data?.error || "Unable to send your message. Please try again."
+        );
+        scheduleIdleReset(5000);
         return;
       }
 
-      setFormState("error");
-      setErrorMessage(
-        data?.error || "Unable to send your message. Please try again."
-      );
-      scheduleIdleReset(5000);
+      const emailResult = await submitWeb3Form({
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+      });
+
+      if (!emailResult.ok && !data.stored) {
+        setFormState("error");
+        setErrorMessage(
+          "Unable to send your message. Please try again or email me directly."
+        );
+        scheduleIdleReset(5000);
+        return;
+      }
+
+      setFormState("sent");
+      setFormData({ name: "", email: "", message: "", website: "" });
+      scheduleIdleReset(4000);
     } catch {
       setFormState("error");
       setErrorMessage("Network error. Please check your connection and try again.");

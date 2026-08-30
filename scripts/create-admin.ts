@@ -11,8 +11,8 @@ async function main() {
       "Set NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAIL, and ADMIN_PASSWORD."
     );
   }
-  if (password.length < 12) {
-    throw new Error("ADMIN_PASSWORD must contain at least 12 characters.");
+  if (password.length < 8) {
+    throw new Error("ADMIN_PASSWORD must contain at least 8 characters.");
   }
 
   const supabase = createClient(url, serviceKey, {
@@ -32,6 +32,14 @@ async function main() {
     userId = data.users.find(
       (user) => user.email?.toLowerCase() === email.toLowerCase()
     )?.id;
+
+    if (userId) {
+      const { error: updateError } = await supabase.auth.admin.updateUserById(
+        userId,
+        { password, email_confirm: true }
+      );
+      if (updateError) throw new Error(updateError.message);
+    }
   }
   if (!userId) {
     throw new Error(createError?.message ?? "Unable to create admin account.");

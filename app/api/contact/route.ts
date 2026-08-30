@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     let messageId: string | null = null;
 
     if (serviceSupabase) {
-      const { data } = await serviceSupabase
+      const { data, error } = await serviceSupabase
         .from("contact_messages")
         .insert({
           name,
@@ -120,58 +120,16 @@ export async function POST(request: NextRequest) {
           message,
           ip_hash: ipHash,
           user_agent: request.headers.get("user-agent")?.slice(0, 500),
+          delivery_status: "pending",
         })
         .select("id")
         .single();
-      messageId = data?.id ?? null;
-    }
 
-    const web3formsKey = process.env.WEB3FORMS_KEY;
-    if (!web3formsKey) {
-      if (messageId) {
-        return NextResponse.json({ success: true });
+      if (error) {
+        console.error("Unable to store contact message", error);
+      } else {
+        messageId = data?.id ?? null;
       }
-      return NextResponse.json(
-        { error: "Contact form is temporarily unavailable." },
-        { status: 503 }
-      );
-    }
-
-    const web3Res = await fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      signal: AbortSignal.timeout(10_000),
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        access_key: web3formsKey,
-        name,
-        email,
-        message,
-        subject: `Portfolio Contact: ${name}`,
-        from_name: "Portfolio Contact Form",
-      }),
-    });
-    const web3Data = (await web3Res.json().catch(() => null)) as {
-      success?: boolean;
-    } | null;
-    const delivered = web3Res.ok && Boolean(web3Data?.success);
-
-    if (serviceSupabase && messageId) {
-      await serviceSupabase
-        .from("contact_messages")
-        .update({
-          delivery_status: delivered ? "sent" : "failed",
-          delivery_error: delivered ? null : `Web3Forms ${web3Res.status}`,
-        })
-        .eq("id", messageId);
-    }
-    if (!delivered) {
-      return NextResponse.json(
-        { error: "Unable to send your message. Please try again." },
-        { status: 502 }
-      );
     }
 
     const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
@@ -184,7 +142,11 @@ export async function POST(request: NextRequest) {
       }).catch((error) => console.error("Auto-reply failed", error));
     }
 
-    return NextResponse.json({ success: true });
+    if (!messageId && !(isSupabaseConfigured() && SUPABASE_SERVICE_ROLE_KEY)) {
+      return NextResponse.json({ success: true, stored: false });
+    }
+
+    return NextResponse.json({ success: true, stored: Boolean(messageId) });
   } catch (error) {
     console.error("Contact API error", error);
     return NextResponse.json(

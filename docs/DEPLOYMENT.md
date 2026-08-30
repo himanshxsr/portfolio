@@ -25,8 +25,8 @@ Copy [`.env.example`](../.env.example) to `.env.local` for local development. On
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only |
 | `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET` | Public (default: `portfolio-assets`) |
+| `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | Public (browser contact email) |
 | `CONTACT_HASH_SECRET` | Server only |
-| `WEB3FORMS_KEY` | Server only |
 | `GOOGLE_APPS_SCRIPT_URL` | Server only (optional) |
 
 Never prefix the service role key with `NEXT_PUBLIC_`. Do not commit `.env` files.
