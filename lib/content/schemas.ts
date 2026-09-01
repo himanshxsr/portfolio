@@ -57,6 +57,7 @@ const contentDataSchemas: Partial<
     image: z.string(),
     liveUrl: z.string(),
     githubUrl: z.string(),
+    downloadUrl: z.string().optional(),
     featured: z.boolean(),
   }),
   experience: z.object({

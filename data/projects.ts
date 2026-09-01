@@ -8,6 +8,7 @@ export interface Project {
   image: string;
   liveUrl?: string;
   githubUrl?: string;
+  downloadUrl?: string;
   featured: boolean;
 }
 
@@ -44,7 +45,7 @@ export const projects: Project[] = [
     tech: ["AWS", "Node.js", "Socket.io", "Real-time", "Event-driven"],
     category: "backend",
     image: "/cobra.svg",
-    githubUrl: "https://github.com/himanshxsr",
+    downloadUrl: "https://downloadcobra.elisiumspace.com",
     featured: true,
   },
   {
@@ -96,6 +97,7 @@ export const projects: Project[] = [
     tech: ["Next.js", "Node.js", "MongoDB", "AWS", "Tailwind CSS"],
     category: "fullstack",
     image: "/hrms.svg",
+    liveUrl: "http://attendance.elisiumspace.com/",
     featured: false,
   },
 ];

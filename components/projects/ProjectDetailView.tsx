@@ -6,7 +6,7 @@ import Image from "next/image";
 import { PageTransition } from "@/components/animations/PageTransition";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import type { Project } from "@/data/projects";
-import { ExternalLink, CodeXml, ArrowLeft } from "lucide-react";
+import { ExternalLink, CodeXml, ArrowLeft, Download } from "lucide-react";
 
 export function ProjectDetailView({ project }: { project: Project }) {
   return (
@@ -96,10 +96,21 @@ export function ProjectDetailView({ project }: { project: Project }) {
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-background font-semibold hover:bg-primary/90 transition-colors"
                 >
                   <ExternalLink size={18} />
-                  Live Demo
+                  View project
                 </a>
               )}
-              {project.githubUrl && (
+              {project.downloadUrl && (
+                <a
+                  href={project.downloadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-primary/30 text-primary font-semibold hover:bg-primary/10 transition-colors"
+                >
+                  <Download size={18} />
+                  Download
+                </a>
+              )}
+              {!project.downloadUrl && project.githubUrl && (
                 <a
                   href={project.githubUrl}
                   target="_blank"

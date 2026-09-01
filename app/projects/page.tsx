@@ -7,7 +7,7 @@ import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { GlowCard } from "@/components/ui/GlowCard";
 import { usePortfolioContent } from "@/components/providers/ContentProvider";
-import { ExternalLink, CodeXml } from "lucide-react";
+import { ExternalLink, CodeXml, Download } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -156,7 +156,18 @@ export default function ProjectsPage() {
                             Live
                           </a>
                         )}
-                        {project.githubUrl && (
+                        {project.downloadUrl && (
+                          <a
+                            href={project.downloadUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-sm font-mono text-text-secondary hover:text-primary transition-colors"
+                          >
+                            <Download size={14} />
+                            Download
+                          </a>
+                        )}
+                        {!project.downloadUrl && project.githubUrl && (
                           <a
                             href={project.githubUrl}
                             target="_blank"
