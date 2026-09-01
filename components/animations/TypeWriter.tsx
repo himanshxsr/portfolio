@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface TypeWriterProps {
   words: string[];
@@ -18,55 +19,62 @@ export function TypeWriter({
   deletingSpeed = 50,
   pauseDuration = 2000,
 }: TypeWriterProps) {
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [currentText, setCurrentText] = useState("");
+  const prefersReducedMotion = useReducedMotion();
+  const [wordIndex, setWordIndex] = useState(0);
+  const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    const currentWord = words[currentWordIndex];
+  const safeWords = words.length ? words : [""];
+  const currentWord = safeWords[wordIndex % safeWords.length] ?? "";
 
-    const timeout = setTimeout(
-      () => {
-        if (!isDeleting) {
-          setCurrentText(currentWord.slice(0, currentText.length + 1));
-          if (currentText === currentWord) {
-            setTimeout(() => setIsDeleting(true), pauseDuration);
-          }
-        } else {
-          setCurrentText(currentWord.slice(0, currentText.length - 1));
-          if (currentText === "") {
-            setIsDeleting(false);
-            setCurrentWordIndex((prev) => (prev + 1) % words.length);
-          }
-        }
-      },
-      isDeleting ? deletingSpeed : typingSpeed
-    );
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setDisplayText(safeWords[0] ?? "");
+      return;
+    }
+
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (!isDeleting) {
+      if (displayText.length < currentWord.length) {
+        timeout = setTimeout(() => {
+          setDisplayText(currentWord.slice(0, displayText.length + 1));
+        }, typingSpeed);
+      } else {
+        timeout = setTimeout(() => setIsDeleting(true), pauseDuration);
+      }
+    } else if (displayText.length > 0) {
+      timeout = setTimeout(() => {
+        setDisplayText(currentWord.slice(0, displayText.length - 1));
+      }, deletingSpeed);
+    } else {
+      setIsDeleting(false);
+      setWordIndex((prev) => (prev + 1) % safeWords.length);
+    }
 
     return () => clearTimeout(timeout);
   }, [
-    currentText,
-    isDeleting,
-    currentWordIndex,
-    words,
-    typingSpeed,
+    currentWord,
     deletingSpeed,
+    displayText,
+    isDeleting,
     pauseDuration,
+    prefersReducedMotion,
+    safeWords,
+    typingSpeed,
   ]);
+
+  useEffect(() => {
+    setWordIndex(0);
+    setDisplayText("");
+    setIsDeleting(false);
+  }, [safeWords.join("|")]);
 
   return (
     <span className={className}>
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={currentText}
-          initial={{ opacity: 0.8 }}
-          animate={{ opacity: 1 }}
-          className="inline"
-        >
-          {currentText}
-        </motion.span>
-      </AnimatePresence>
+      <span className="inline">{displayText}</span>
       <motion.span
+        aria-hidden
         animate={{ opacity: [1, 0] }}
         transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
         className="inline-block w-[3px] h-[1em] bg-primary ml-1 align-middle"
