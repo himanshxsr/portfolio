@@ -5,10 +5,11 @@ import {
   SUPABASE_SERVICE_ROLE_KEY,
 } from "@/lib/supabase/config";
 import { createServiceSupabaseClient } from "@/lib/supabase/service";
+import { validateContactForm } from "@/lib/contact/validation";
+import { verifyContactEmail } from "@/lib/contact/verify-email";
 
 export const runtime = "nodejs";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 5;
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
@@ -89,18 +90,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    const name = sanitize(body.name, 100);
-    const email = sanitize(body.email, 254);
-    const message = sanitize(body.message, 5000);
-    if (!name || !email || !message) {
-      return NextResponse.json(
-        { error: "Name, email, and message are required." },
-        { status: 400 }
-      );
+    const validation = validateContactForm({
+      name: sanitize(body.name, 100),
+      email: sanitize(body.email, 254),
+      message: sanitize(body.message, 5000),
+      website: sanitize(body.website, 200),
+    });
+
+    if (!validation.ok) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
-    if (!EMAIL_RE.test(email)) {
+
+    const { name, email, message } = validation.data;
+
+    const emailCheck = await verifyContactEmail(email);
+    if (!emailCheck.ok) {
       return NextResponse.json(
-        { error: "Please provide a valid email." },
+        {
+          error: emailCheck.error,
+          field: emailCheck.field,
+          suggestion: emailCheck.suggestion,
+        },
         { status: 400 }
       );
     }

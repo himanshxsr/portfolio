@@ -29,8 +29,27 @@ Copy [`.env.example`](../.env.example) to `.env.local` for local development. On
 | `WEB3FORMS_KEY` | Server fallback for contact config API (same UUID) |
 | `CONTACT_HASH_SECRET` | Server only |
 | `GOOGLE_APPS_SCRIPT_URL` | Server only (optional) |
+| `ABSTRACT_EMAIL_API_KEY` | Server only (optional — deeper email verification) |
 
 Never prefix the service role key with `NEXT_PUBLIC_`. Do not commit `.env` files.
+
+### Contact email verification
+
+Before a message is saved, the server checks:
+
+1. **Format** (Zod)
+2. **Domain typos** (e.g. `gmial.com` → suggests `gmail.com`)
+3. **Disposable domains** blocked
+4. **MX / mail records** — domain must accept email
+5. **Optional:** [Abstract Email Reputation API](https://www.abstractapi.com/api/email-reputation-api) when `ABSTRACT_EMAIL_API_KEY` is set (use the **Email Reputation** primary key from your dashboard)
+
+This is separate from the **Google Apps Script auto-reply** (confirmation email to the visitor). Verification runs **before** submit; Apps Script runs **after** a valid submission.
+
+No API can reliably detect `wronguser@gmail.com` on a real domain. For that, only a confirmation-link flow proves inbox ownership.
+
+Set `ABSTRACT_EMAIL_API_KEY` on Vercel (and `.env.local`), then **Redeploy**. Contact notifications (Web3Forms) and visitor confirmations (Apps Script) stay on your existing **himanshuaashish4@gmail.com** setup — no change required there.
+
+The visitor confirmation email is sent by **Google Apps Script**. Template: [`scripts/google-apps-script-auto-reply.gs`](../scripts/google-apps-script-auto-reply.gs).
 
 ## 3. Bootstrap admin and content
 

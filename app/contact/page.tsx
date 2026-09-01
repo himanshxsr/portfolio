@@ -7,6 +7,7 @@ import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { usePortfolioContent } from "@/components/providers/ContentProvider";
 import { submitWeb3Form } from "@/lib/contact/web3forms";
+import { validateContactForm } from "@/lib/contact/validation";
 import { Send, CheckCircle, Mail, AlertCircle } from "lucide-react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
@@ -16,7 +17,9 @@ export default function ContactPage() {
   const { profile: personalData, pages } = usePortfolioContent();
   const page = pages.contact;
   const [formState, setFormState] = useState<FormState>("idle");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -35,23 +38,47 @@ export default function ContactPage() {
     if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
     resetTimerRef.current = setTimeout(() => {
       setFormState("idle");
-      setErrorMessage(null);
+      setFormError(null);
+      setEmailError(null);
+      setEmailSuggestion(null);
     }, delayMs);
+  };
+
+  const clearEmailErrors = () => {
+    setEmailError(null);
+    setEmailSuggestion(null);
+    if (formState === "error" && !formError) setFormState("idle");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+    setEmailError(null);
+    setEmailSuggestion(null);
+
+    const validation = validateContactForm(formData);
+    if (!validation.ok) {
+      setFormState("error");
+      if (validation.field === "email") {
+        setEmailError(validation.error);
+      } else {
+        setFormError(validation.error);
+      }
+      scheduleIdleReset(8000);
+      return;
+    }
+
     setFormState("sending");
-    setErrorMessage(null);
+    const { name, email, message } = validation.data;
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
+          name,
+          email,
+          message,
           website: formData.website,
         }),
       });
@@ -61,21 +88,34 @@ export default function ContactPage() {
         stored?: boolean;
         id?: string | null;
         error?: string;
+        field?: string;
+        suggestion?: string;
       } | null;
 
       if (!res.ok || !data?.success) {
         setFormState("error");
-        setErrorMessage(
-          data?.error || "Unable to send your message. Please try again."
-        );
-        scheduleIdleReset(5000);
+        if (data?.field === "email" || data?.suggestion) {
+          setEmailError(
+            data?.error ||
+              "Please enter a correct and deliverable email address."
+          );
+          if (data?.suggestion) setEmailSuggestion(data.suggestion);
+        } else {
+          setFormError(
+            data?.error || "Unable to send your message. Please try again."
+          );
+        }
+        scheduleIdleReset(8000);
         return;
       }
 
+      setEmailError(null);
+      setEmailSuggestion(null);
+
       const emailResult = await submitWeb3Form({
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
+        name,
+        email,
+        message,
       });
 
       if (data.id) {
@@ -92,20 +132,22 @@ export default function ContactPage() {
 
       if (!emailResult.ok && !data.stored) {
         setFormState("error");
-        setErrorMessage(
+        setFormError(
           "Unable to send your message. Please try again or email me directly."
         );
-        scheduleIdleReset(5000);
+        scheduleIdleReset(8000);
         return;
       }
 
       setFormState("sent");
       setFormData({ name: "", email: "", message: "", website: "" });
+      setFormError(null);
+      setEmailError(null);
       scheduleIdleReset(4000);
     } catch {
       setFormState("error");
-      setErrorMessage("Network error. Please check your connection and try again.");
-      scheduleIdleReset(5000);
+      setFormError("Network error. Please check your connection and try again.");
+      scheduleIdleReset(8000);
     }
   };
 
@@ -210,20 +252,53 @@ export default function ContactPage() {
                     type="email"
                     id="email"
                     value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      clearEmailErrors();
+                    }}
                     required
+                    autoComplete="email"
+                    inputMode="email"
                     maxLength={254}
-                    className="peer w-full px-4 py-3 bg-surface border border-border-subtle rounded-xl text-text-primary placeholder-transparent focus:outline-none focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,240,255,0.1)] transition-all duration-300"
+                    aria-invalid={emailError ? true : undefined}
+                    aria-describedby={emailError ? "email-error" : undefined}
+                    className={`peer w-full px-4 py-3 bg-surface border rounded-xl text-text-primary placeholder-transparent focus:outline-none transition-all duration-300 ${
+                      emailError
+                        ? "border-red-400/70 focus:border-red-400/70 focus:shadow-[0_0_15px_rgba(248,113,113,0.15)]"
+                        : "border-border-subtle focus:border-primary/50 focus:shadow-[0_0_15px_rgba(0,240,255,0.1)]"
+                    }`}
                     placeholder="Email"
                   />
                   <label
                     htmlFor="email"
-                    className="absolute left-4 -top-2.5 text-xs font-mono text-primary bg-background px-1 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-text-secondary peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-primary"
+                    className={`absolute left-4 -top-2.5 text-xs font-mono bg-background px-1 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-text-secondary peer-focus:-top-2.5 peer-focus:text-xs ${
+                      emailError
+                        ? "text-red-400 peer-focus:text-red-400"
+                        : "text-primary peer-focus:text-primary"
+                    }`}
                   >
                     Email
                   </label>
+                  {emailError && (
+                    <div id="email-error" role="alert" className="mt-2 space-y-2">
+                      <p className="flex items-start gap-2 text-sm text-red-400 font-body">
+                        <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                        {emailError}
+                      </p>
+                      {emailSuggestion && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, email: emailSuggestion });
+                            clearEmailErrors();
+                          }}
+                          className="text-sm text-primary hover:underline font-body"
+                        >
+                          Use {emailSuggestion}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="relative group">
@@ -247,13 +322,13 @@ export default function ContactPage() {
                   </label>
                 </div>
 
-                {errorMessage && (
+                {formError && (
                   <p
                     role="alert"
                     className="flex items-start gap-2 text-sm text-red-400 font-body"
                   >
                     <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                    {errorMessage}
+                    {formError}
                   </p>
                 )}
 
