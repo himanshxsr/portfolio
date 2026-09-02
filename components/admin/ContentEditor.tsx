@@ -5,11 +5,16 @@ import Link from "next/link";
 import type { JsonValue, ContentType } from "@/lib/content/types";
 import {
   deleteContent,
-  publishContent,
+  publishContentEntry,
   saveContentEntry,
   type ContentActionState,
   unpublishContent,
 } from "@/app/admin/(dashboard)/content-actions";
+import { isMediaUrlField, MediaUrlField } from "@/components/admin/MediaUrlField";
+import {
+  mergeContentEditorData,
+  orderedEditorFields,
+} from "@/lib/content/editor-data";
 
 type EditableObject = Record<string, JsonValue>;
 type Path = Array<string | number>;
@@ -98,6 +103,15 @@ function Field({
 
   if (typeof value === "string" || value === null) {
     const stringValue = value ?? "";
+    if (isMediaUrlField(name)) {
+      return (
+        <MediaUrlField
+          label={label}
+          value={stringValue}
+          onChange={(next) => onChange(path, next)}
+        />
+      );
+    }
     return (
       <label className="block">
         <span className="mb-1.5 block text-sm font-medium">{label}</span>
@@ -110,7 +124,14 @@ function Field({
           />
         ) : (
           <input
-            type={/email/i.test(name) ? "email" : /url|image|resume/i.test(name) ? "url" : "text"}
+            type={
+              /email/i.test(name)
+                ? "email"
+                : isMediaUrlField(name) ||
+                    /^(liveUrl|githubUrl|downloadUrl|baseUrl)$/i.test(name)
+                  ? "url"
+                  : "text"
+            }
             value={stringValue}
             onChange={(event) => onChange(path, event.target.value)}
             className={inputClass}
@@ -273,15 +294,19 @@ export function ContentEditor({
   contentType: ContentType;
   initialData: EditableObject;
 }) {
-  const [data, setData] = useState<EditableObject>(
+  const slug = entry?.slug ?? "";
+  const mergedInitial = mergeContentEditorData(
+    contentType,
+    slug,
     entry?.draft_data ?? initialData
   );
+  const [data, setData] = useState<EditableObject>(mergedInitial);
   const [state, action, pending] = useActionState(
     saveContentEntry,
     initialActionState
   );
   const [publishState, publishAction, publishPending] = useActionState(
-    publishContent,
+    publishContentEntry,
     initialActionState
   );
   const [unpublishState, unpublishAction, unpublishPending] = useActionState(
@@ -301,7 +326,7 @@ export function ContentEditor({
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
-      <form action={action} className="space-y-5">
+      <form id="content-editor-form" action={action} className="space-y-5">
         {entry && <input type="hidden" name="id" value={entry.id} />}
         {entry && (
           <input type="hidden" name="revision" value={entry.revision} />
@@ -332,7 +357,19 @@ export function ContentEditor({
         </div>
 
         <div className="space-y-5 rounded-xl border border-border-subtle bg-surface p-5">
-          {Object.entries(data).map(([name, value]) => (
+          {contentType === "page" && slug === "home" ? (
+            <p className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-text-secondary">
+              <strong className="text-text-primary">Hero sketch:</strong> upload
+              your portrait in{" "}
+              <Link href="/admin/media" className="text-primary hover:underline">
+                Media
+              </Link>
+              , then paste the URL into <strong>Hero Sketch Url</strong> (dark)
+              and optionally <strong>Hero Sketch Url Light</strong> below
+              (or use Pick from media).
+            </p>
+          ) : null}
+          {orderedEditorFields(contentType, slug, data).map(([name, value]) => (
             <Field
               key={name}
               name={name}
@@ -400,16 +437,15 @@ export function ContentEditor({
               >
                 Preview draft
               </Link>
-              <form action={publishAction}>
-                <input type="hidden" name="id" value={entry.id} />
-                <button
-                  type="submit"
-                  disabled={publishPending || unpublishPending}
-                  className="w-full rounded-lg bg-emerald-500 px-3 py-2.5 text-sm font-semibold text-black disabled:opacity-60"
-                >
-                  {publishPending ? "Publishing..." : "Publish draft"}
-                </button>
-              </form>
+              <button
+                type="submit"
+                form="content-editor-form"
+                formAction={publishAction}
+                disabled={publishPending || unpublishPending}
+                className="w-full rounded-lg bg-emerald-500 px-3 py-2.5 text-sm font-semibold text-black disabled:opacity-60"
+              >
+                {publishPending ? "Publishing..." : "Save & publish"}
+              </button>
               {(entry.status === "published" || publishState.success) &&
                 !unpublishState.success && (
                 <form action={unpublishAction}>
@@ -425,7 +461,18 @@ export function ContentEditor({
               )}
             </div>
           </div>
-          <form action={deleteContent}>
+          <form
+            action={deleteContent}
+            onSubmit={(event) => {
+              if (
+                !window.confirm(
+                  "Delete this entry permanently? This cannot be undone."
+                )
+              ) {
+                event.preventDefault();
+              }
+            }}
+          >
             <input type="hidden" name="id" value={entry.id} />
             <input type="hidden" name="contentType" value={contentType} />
             <button

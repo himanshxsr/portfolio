@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import { SUPABASE_STORAGE_BUCKET } from "@/lib/supabase/config";
 
@@ -15,15 +15,38 @@ type MediaAsset = {
   created_at: string;
 };
 
+const UPLOAD_FOLDERS = [
+  { value: "projects", label: "Projects" },
+  { value: "site", label: "Site / OG images" },
+  { value: "profile", label: "Profile / résumé" },
+  { value: "posts", label: "Blog" },
+  { value: "other", label: "Other" },
+] as const;
+
+type UploadFolder = (typeof UPLOAD_FOLDERS)[number]["value"];
+
 export function MediaManager({ initialAssets }: { initialAssets: MediaAsset[] }) {
   const [assets, setAssets] = useState(initialAssets);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>();
+  const [folder, setFolder] = useState<UploadFolder>("projects");
+  const [query, setQuery] = useState("");
+
+  const filteredAssets = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return assets;
+    return assets.filter((asset) =>
+      asset.filename.toLowerCase().includes(needle)
+    );
+  }, [assets, query]);
 
   async function upload(file: File) {
     setUploading(true);
     setError(null);
     try {
+      const uploadFolder: UploadFolder =
+        file.type === "application/pdf" ? "profile" : folder;
+
       const prepareResponse = await fetch("/api/admin/uploads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -31,7 +54,7 @@ export function MediaManager({ initialAssets }: { initialAssets: MediaAsset[] })
           filename: file.name,
           mimeType: file.type,
           size: file.size,
-          folder: file.type === "application/pdf" ? "profile" : "other",
+          folder: uploadFolder,
         }),
       });
       const prepared = await prepareResponse.json();
@@ -85,12 +108,40 @@ export function MediaManager({ initialAssets }: { initialAssets: MediaAsset[] })
 
   return (
     <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium">Search files</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter by filename…"
+            className="w-full rounded-lg border border-border-subtle bg-background px-3 py-2.5 text-sm outline-none focus:border-primary/60"
+          />
+        </label>
+        <label className="block sm:w-48">
+          <span className="mb-1.5 block text-sm font-medium">Upload folder</span>
+          <select
+            value={folder}
+            onChange={(event) => setFolder(event.target.value as UploadFolder)}
+            className="w-full rounded-lg border border-border-subtle bg-background px-3 py-2.5 text-sm outline-none focus:border-primary/60"
+          >
+            {UPLOAD_FOLDERS.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
       <label className="flex cursor-pointer flex-col items-center rounded-xl border border-dashed border-primary/40 bg-primary/5 px-6 py-10 text-center">
         <span className="font-semibold text-primary">
-          {uploading ? "Uploading..." : "Upload image or PDF"}
+          {uploading ? "Uploading…" : "Upload image or PDF"}
         </span>
         <span className="mt-2 text-sm text-text-secondary">
-          PNG, JPG, WebP, GIF, SVG, or PDF · maximum 10 MB
+          PNG, JPG, WebP, GIF, SVG, or PDF · max 10 MB · uses{" "}
+          <code className="text-primary">/api/admin/uploads</code>
         </span>
         <input
           type="file"
@@ -104,20 +155,27 @@ export function MediaManager({ initialAssets }: { initialAssets: MediaAsset[] })
           }}
         />
       </label>
-      {error && (
+
+      {error ? (
         <p role="alert" className="text-sm text-red-400">
           {error}
         </p>
-      )}
+      ) : null}
+
+      <p className="text-xs text-text-secondary">
+        {filteredAssets.length} file{filteredAssets.length === 1 ? "" : "s"} ·
+        Copy URL into project images, profile résumé, or home{" "}
+        <code className="text-primary">heroSketchUrl</code>
+      </p>
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {assets.map((asset) => (
+        {filteredAssets.map((asset) => (
           <article
             key={asset.id}
             className="overflow-hidden rounded-xl border border-border-subtle bg-surface"
           >
             <div className="flex aspect-video items-center justify-center bg-background">
               {asset.mime_type.startsWith("image/") ? (
-                // Admin previews may use arbitrary newly uploaded URLs.
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={asset.public_url}
@@ -131,7 +189,8 @@ export function MediaManager({ initialAssets }: { initialAssets: MediaAsset[] })
             <div className="p-4">
               <p className="truncate text-sm font-medium">{asset.filename}</p>
               <p className="mt-1 text-xs text-text-secondary">
-                {(asset.size_bytes / 1024).toFixed(1)} KB
+                {(asset.size_bytes / 1024).toFixed(1)} KB ·{" "}
+                {asset.storage_path.split("/")[0]}
               </p>
               <div className="mt-4 flex gap-3 text-xs">
                 <button
@@ -153,6 +212,12 @@ export function MediaManager({ initialAssets }: { initialAssets: MediaAsset[] })
           </article>
         ))}
       </div>
+
+      {!filteredAssets.length ? (
+        <div className="rounded-xl border border-border-subtle bg-surface px-6 py-14 text-center text-text-secondary">
+          {query ? "No files match your search." : "No media uploaded yet."}
+        </div>
+      ) : null}
     </div>
   );
 }

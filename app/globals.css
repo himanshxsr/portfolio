@@ -27,6 +27,11 @@
   --text-primary: #ffffff;
   --text-secondary: #a0a0b0;
   --border-subtle: rgba(255, 255, 255, 0.04);
+  /* Hero background sketch — raise toward 1 for stronger, lower toward 0 for subtler */
+  --hero-sketch-opacity: 0.94;
+  --hero-sketch-size: clamp(9rem, 32vw, 13.5rem);
+  --hero-sketch-print-duration: 4.4s;
+  --hero-sketch-beam-sweep-duration: 3.2s;
 }
 
 [data-theme="light"] {
@@ -40,6 +45,7 @@
   --text-primary: #1a1a2e;
   --text-secondary: #475569;
   --border-subtle: rgba(8, 145, 178, 0.1);
+  --hero-sketch-opacity: 0.78;
 }
 
 * {
@@ -93,6 +99,111 @@ body {
   border-color: rgba(8, 145, 178, 0.12);
 }
 
+/* Hero sketch — square frame, transparent PNG */
+.hero-sketch-portrait__frame {
+  position: relative;
+  width: var(--hero-sketch-size);
+  height: var(--hero-sketch-size);
+  min-width: var(--hero-sketch-size);
+  min-height: var(--hero-sketch-size);
+  aspect-ratio: 1 / 1;
+  flex: 0 0 auto;
+  background: transparent;
+}
+
+.hero-sketch-portrait__reveal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+.hero-sketch-portrait__reveal--idle,
+.hero-sketch-portrait__reveal--active {
+  height: 0;
+}
+
+.hero-sketch-portrait__reveal--static {
+  height: 100%;
+}
+
+.hero-sketch-portrait__reveal--active {
+  animation: hero-sketch-print var(--hero-sketch-print-duration) steps(56) forwards;
+}
+
+@keyframes hero-sketch-print {
+  from {
+    height: 0;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+/* Full square height — reveal clip grows over this (do not use inset: 0 / height 100%) */
+.hero-sketch-portrait__canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--hero-sketch-size);
+  background: transparent;
+}
+
+.hero-sketch-portrait__image {
+  opacity: var(--hero-sketch-opacity);
+}
+
+.hero-sketch-portrait__beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 2;
+  height: 3px;
+  pointer-events: none;
+  mix-blend-mode: normal;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--primary) 40%, transparent) 18%,
+    #ffffff 50%,
+    color-mix(in srgb, var(--primary) 40%, transparent) 82%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 12px var(--primary),
+    0 0 24px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.hero-sketch-portrait__beam--print {
+  animation: hero-sketch-beam-print var(--hero-sketch-print-duration) steps(56)
+    forwards;
+}
+
+@keyframes hero-sketch-beam-print {
+  to {
+    top: calc(100% - 3px);
+  }
+}
+
+.hero-sketch-portrait__beam--sweep {
+  top: calc(100% - 3px);
+  animation: hero-sketch-beam-sweep var(--hero-sketch-beam-sweep-duration)
+    ease-in-out infinite alternate;
+}
+
+@keyframes hero-sketch-beam-sweep {
+  from {
+    top: calc(100% - 3px);
+  }
+  to {
+    top: 0;
+  }
+}
+
 /* Gradient accent */
 .gradient-text {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -127,6 +238,15 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .hero-sketch-portrait__reveal--active {
+    animation: none !important;
+    height: 100% !important;
+  }
+
+  .hero-sketch-portrait__beam {
+    display: none !important;
   }
 }
 

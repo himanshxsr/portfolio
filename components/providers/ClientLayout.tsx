@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
+import { AppReadyProvider } from "@/components/providers/AppReadyProvider";
 import { Preloader } from "@/components/layout/Preloader";
 import { CustomCursor } from "@/components/layout/CustomCursor";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
@@ -17,7 +18,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <AppReadyProvider>
       <Preloader />
       <AnalyticsTracker />
       <CustomCursor />
@@ -26,6 +27,6 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 pt-20">{children}</main>
       <Footer />
       <ScrollToTop />
-    </>
+    </AppReadyProvider>
   );
 }

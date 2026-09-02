@@ -1,7 +1,24 @@
 import "server-only";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { ADMIN_COLLECTIONS, type AdminCollection } from "./admin-collections";
 import type { ContentEntry, ContentType } from "./types";
+
+export async function getAdminContentEntriesForCollection(
+  collection: AdminCollection
+) {
+  const types = ADMIN_COLLECTIONS[collection];
+  const supabase = await createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("content_entries")
+    .select("*")
+    .in("content_type", [...types])
+    .order("sort_order")
+    .order("updated_at", { ascending: false });
+
+  if (error) throw new Error("Unable to load content.");
+  return (data ?? []) as ContentEntry[];
+}
 
 export async function getAdminContentEntries(contentType?: ContentType) {
   const supabase = await createServerSupabaseClient();

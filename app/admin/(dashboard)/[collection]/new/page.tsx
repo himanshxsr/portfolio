@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
+import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ContentEditor } from "@/components/admin/ContentEditor";
 import {
   ADMIN_COLLECTIONS,
+  COLLECTION_LABELS,
   DEFAULT_CONTENT_TYPE,
   isAdminCollection,
 } from "@/lib/content/admin-collections";
@@ -28,17 +31,26 @@ export default async function NewAdminContentPage({
     )
       ? requestedType.data
       : DEFAULT_CONTENT_TYPE[collection];
+
   return (
     <div className="space-y-6">
-      <div>
-        <p className="font-mono text-sm text-primary">
-          {CONTENT_TYPE_LABELS[contentType]}
-        </p>
-        <h1 className="mt-2 text-3xl font-bold">Create entry</h1>
-        <p className="mt-2 text-sm text-text-secondary">
-          The entry remains private until you publish it.
-        </p>
-      </div>
+      <AdminBreadcrumbs
+        items={[
+          { label: "Overview", href: "/admin" },
+          {
+            label: COLLECTION_LABELS[collection],
+            href: `/admin/${collection}`,
+          },
+          { label: "New entry" },
+        ]}
+      />
+
+      <AdminPageHeader
+        eyebrow={CONTENT_TYPE_LABELS[contentType]}
+        title="Create entry"
+        description="Save as a draft first, then publish when ready."
+      />
+
       <ContentEditor
         contentType={contentType}
         initialData={CONTENT_TEMPLATES[contentType]}

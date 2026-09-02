@@ -15,8 +15,8 @@ function getSnapshot() {
 }
 
 function getServerSnapshot() {
-  // Prefer reduced motion on the server to avoid flash of heavy motion.
-  return true;
+  // Default to false so preloader + hero print timing are not skipped before hydration.
+  return false;
 }
 
 export function useReducedMotion() {

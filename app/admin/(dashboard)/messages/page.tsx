@@ -1,3 +1,5 @@
+import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { updateMessageStatus } from "./actions";
 
@@ -9,15 +11,30 @@ export default async function AdminMessagesPage() {
     .order("created_at", { ascending: false })
     .limit(100);
   const messages = data ?? [];
+  const unread = messages.filter((message) => message.status === "new").length;
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="font-mono text-sm text-primary">Inbox</p>
-        <h1 className="mt-2 text-3xl font-bold">Contact messages</h1>
-        <p className="mt-2 text-sm text-text-secondary">
-          Review delivery status and track follow-up.
-        </p>
+      <AdminBreadcrumbs
+        items={[
+          { label: "Overview", href: "/admin" },
+          { label: "Messages" },
+        ]}
+      />
+
+      <AdminPageHeader
+        eyebrow="Inbox"
+        title="Contact messages"
+        description="Submissions from the public contact form. Delivery status is updated by Web3Forms and the auto-reply script."
+      />
+
+      <div className="flex flex-wrap gap-3 text-sm">
+        <span className="rounded-full border border-border-subtle px-3 py-1">
+          Total: {messages.length}
+        </span>
+        <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-primary">
+          Unread: {unread}
+        </span>
       </div>
 
       <div className="space-y-4">
@@ -38,8 +55,8 @@ export default async function AdminMessagesPage() {
               </div>
               <div className="text-xs text-text-secondary sm:text-right">
                 <p>{new Date(message.created_at).toLocaleString()}</p>
-                <p className="mt-1">
-                  Delivery: {message.delivery_status}
+                <p className="mt-1 capitalize">
+                  Status: {message.status} · Delivery: {message.delivery_status}
                 </p>
               </div>
             </div>
@@ -56,7 +73,7 @@ export default async function AdminMessagesPage() {
                     disabled={message.status === status}
                     className="rounded-full border border-border-subtle px-3 py-1 text-xs capitalize disabled:border-primary/30 disabled:bg-primary/10 disabled:text-primary"
                   >
-                    {status}
+                    Mark {status}
                   </button>
                 </form>
               ))}

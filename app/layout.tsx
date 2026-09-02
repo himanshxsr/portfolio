@@ -16,6 +16,8 @@ import {
 } from "@/lib/content/loaders";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],

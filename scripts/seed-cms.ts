@@ -90,8 +90,41 @@ function mapPublicPath(
   return assetUrls[filename] ?? value;
 }
 
+async function getExistingPublished(contentType: string, slug: string) {
+  const { data, error } = await supabase
+    .from("content_entries")
+    .select("published_data")
+    .eq("content_type", contentType)
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    console.warn(`Could not read existing ${contentType}/${slug}: ${error.message}`);
+    return null;
+  }
+
+  return (data?.published_data as Record<string, unknown> | null) ?? null;
+}
+
 async function main() {
   await assertSupabaseReachable();
+
+  const existingProfile = await getExistingPublished("profile", "main");
+  const existingResumeUrl =
+    typeof existingProfile?.resumeUrl === "string"
+      ? existingProfile.resumeUrl.trim()
+      : "";
+  const preserveResume =
+    Boolean(existingResumeUrl) && process.env.SEED_FORCE_RESUME !== "true";
+
+  const existingHome = await getExistingPublished("page", "home");
+  const existingHeroSketchUrl =
+    typeof existingHome?.heroSketchUrl === "string"
+      ? existingHome.heroSketchUrl.trim()
+      : "";
+  const preserveHeroSketch =
+    Boolean(existingHeroSketchUrl) &&
+    process.env.SEED_FORCE_HERO_SKETCH !== "true";
 
   const projectFiles = [
     "elisium-space.svg",
@@ -101,8 +134,20 @@ async function main() {
     "3d-portfolio.svg",
     "hrms.svg",
   ];
-  const siteFiles = ["og.svg"];
-  const profileFiles = ["resume.pdf"];
+  const siteFiles = [
+    "og.svg",
+    ...(preserveHeroSketch ? [] : ["hero-sketch.webp"]),
+  ];
+  const profileFiles = preserveResume ? [] : ["resume.pdf"];
+
+  if (preserveResume) {
+    console.log("Preserving existing profile resume URL (set SEED_FORCE_RESUME=true to replace).");
+  }
+  if (preserveHeroSketch) {
+    console.log(
+      "Preserving existing hero sketch URL (set SEED_FORCE_HERO_SKETCH=true to replace)."
+    );
+  }
 
   const [projectUrls, siteUrls, profileUrls] = await Promise.all([
     uploadSeedAssets(supabase, bucket, projectFiles, "projects"),
@@ -141,7 +186,10 @@ async function main() {
 
   add("profile", "main", {
     ...personalData,
-    resumeUrl: assetUrls["resume.pdf"] ?? personalData.resumeUrl,
+    resumeUrl:
+      preserveResume && existingResumeUrl
+        ? existingResumeUrl
+        : assetUrls["resume.pdf"] ?? personalData.resumeUrl,
   } as unknown as Record<string, unknown>);
 
   NAV_LINKS.forEach((item, index) =>
@@ -176,6 +224,11 @@ async function main() {
     )
   );
 
+  const homeHeroSketchUrl =
+    preserveHeroSketch && existingHeroSketchUrl
+      ? existingHeroSketchUrl
+      : assetUrls["hero-sketch.webp"] ?? existingHeroSketchUrl ?? "";
+
   [
     {
       slug: "home",
@@ -185,6 +238,7 @@ async function main() {
       heroGreeting: "// Hello, World! I'm",
       heroDescription:
         "I build scalable web applications, real-time multiplayer systems, and AI-powered solutions that drive business impact.",
+      heroSketchUrl: homeHeroSketchUrl,
       workCtaLabel: "View My Work",
       resumeCtaLabel: "Download Resume",
       contactCtaLabel: "Get In Touch",

@@ -96,6 +96,15 @@ export async function saveContentEntry(
   redirect(`/admin/content/${created.id}`);
 }
 
+export async function publishContentEntry(
+  previousState: ContentActionState,
+  formData: FormData
+): Promise<ContentActionState> {
+  const saved = await saveContentEntry(previousState, formData);
+  if (saved.error) return saved;
+  return publishContent(previousState, formData);
+}
+
 export async function publishContent(
   _previousState: ContentActionState,
   formData: FormData

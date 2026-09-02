@@ -4,26 +4,42 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimeWave } from "@/components/animations/AnimeWave";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useAppReady } from "@/components/providers/AppReadyProvider";
 import { usePortfolioContent } from "@/components/providers/ContentProvider";
 
 export function Preloader() {
   const { site, pages } = usePortfolioContent();
+  const { markReady } = useAppReady();
   const uiCopy = pages.loading;
   const prefersReducedMotion = useReducedMotion();
+  const [hydrated, setHydrated] = useState(false);
   const [elapsed, setElapsed] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(
-      () => setElapsed(true),
-      prefersReducedMotion ? 0 : 1200
-    );
+    setHydrated(true);
+  }, []);
+
+  const reduceMotion = hydrated && prefersReducedMotion;
+
+  useEffect(() => {
+    if (reduceMotion) {
+      markReady();
+    }
+  }, [reduceMotion, markReady]);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    const timer = setTimeout(() => setElapsed(true), reduceMotion ? 0 : 1200);
     return () => clearTimeout(timer);
-  }, [prefersReducedMotion]);
+  }, [hydrated, reduceMotion]);
 
   const isLoading = !elapsed;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={markReady}>
       {isLoading && (
         <motion.div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-background px-4 sm:px-6"
@@ -52,7 +68,7 @@ export function Preloader() {
               />
             </motion.div>
 
-            {!prefersReducedMotion && <AnimeWave className="mt-2 sm:mt-4" />}
+            {!reduceMotion && <AnimeWave className="mt-2 sm:mt-4" />}
 
             <motion.p
               initial={{ opacity: 0 }}

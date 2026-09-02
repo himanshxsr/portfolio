@@ -5,7 +5,7 @@ export const ADMIN_COLLECTIONS = {
   profile: ["profile"],
   projects: ["project", "project-category", "technology"],
   experience: ["experience"],
-  skills: ["skill-category", "skill", "technology"],
+  skills: ["skill-category", "skill"],
   blog: ["blog-post", "blog-tag"],
 } satisfies Record<string, ContentType[]>;
 
@@ -32,3 +32,14 @@ export const DEFAULT_CONTENT_TYPE: Record<AdminCollection, ContentType> = {
   skills: "skill-category",
   blog: "blog-post",
 };
+
+export function getCollectionForContentType(
+  contentType: string
+): AdminCollection | null {
+  for (const [collection, types] of Object.entries(ADMIN_COLLECTIONS)) {
+    if ((types as readonly string[]).includes(contentType)) {
+      return collection as AdminCollection;
+    }
+  }
+  return null;
+}

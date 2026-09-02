@@ -70,6 +70,8 @@ Before seeding, place media in [`seed/assets/`](../seed/assets/) (gitignored):
 
 The seed script uploads these to Supabase Storage and writes public URLs into CMS entries.
 
+**Important:** Re-running `npm run cms:seed` overwrites most CMS content from the repo. It **keeps your existing résumé URL** if you already uploaded one in Admin. Do not place a placeholder `resume.pdf` in `seed/assets/` unless you intend to replace production résumé. Use `SEED_FORCE_RESUME=true` only when you want to force-upload `seed/assets/resume.pdf`.
+
 ## 4. Supabase Auth hardening
 
 In **Authentication → Providers → Email**, disable **Allow new users to sign up**. Only the bootstrapped admin account should exist.

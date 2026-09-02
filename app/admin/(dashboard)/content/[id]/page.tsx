@@ -1,7 +1,23 @@
 import { notFound } from "next/navigation";
+import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ContentEditor } from "@/components/admin/ContentEditor";
+import {
+  COLLECTION_LABELS,
+  getCollectionForContentType,
+} from "@/lib/content/admin-collections";
 import { getAdminContentEntry } from "@/lib/content/admin-queries";
 import { CONTENT_TYPE_LABELS } from "@/lib/content/types";
+
+function entryTitle(entry: {
+  slug: string;
+  draft_data: Record<string, unknown>;
+}) {
+  if (typeof entry.draft_data.title === "string") return entry.draft_data.title;
+  if (typeof entry.draft_data.name === "string") return entry.draft_data.name;
+  if (typeof entry.draft_data.label === "string") return entry.draft_data.label;
+  return entry.slug;
+}
 
 export default async function EditAdminContentPage({
   params,
@@ -16,24 +32,32 @@ export default async function EditAdminContentPage({
     notFound();
   }
 
-  const title =
-    typeof entry.draft_data.title === "string"
-      ? entry.draft_data.title
-      : typeof entry.draft_data.name === "string"
-        ? entry.draft_data.name
-        : entry.slug;
+  const collection = getCollectionForContentType(entry.content_type);
+  const title = entryTitle(entry);
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="font-mono text-sm text-primary">
-          {CONTENT_TYPE_LABELS[entry.content_type]}
-        </p>
-        <h1 className="mt-2 text-3xl font-bold">{title}</h1>
-        <p className="mt-2 text-sm text-text-secondary">
-          Draft changes remain private until published.
-        </p>
-      </div>
+      <AdminBreadcrumbs
+        items={[
+          { label: "Overview", href: "/admin" },
+          ...(collection
+            ? [
+                {
+                  label: COLLECTION_LABELS[collection],
+                  href: `/admin/${collection}`,
+                },
+              ]
+            : []),
+          { label: title },
+        ]}
+      />
+
+      <AdminPageHeader
+        eyebrow={CONTENT_TYPE_LABELS[entry.content_type]}
+        title={title}
+        description="Draft changes stay private until you publish. Use Preview before going live."
+      />
+
       <ContentEditor
         entry={entry}
         contentType={entry.content_type}

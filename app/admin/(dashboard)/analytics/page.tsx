@@ -1,3 +1,5 @@
+import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export default async function AdminAnalyticsPage() {
@@ -39,14 +41,18 @@ export default async function AdminAnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <p className="font-mono text-sm text-primary">Last 30 days</p>
-        <h1 className="mt-2 text-3xl font-bold">Visitor analytics</h1>
-        <p className="mt-2 text-sm text-text-secondary">
-          Privacy-conscious page, device, and referrer totals. Raw IP addresses
-          are not stored.
-        </p>
-      </div>
+      <AdminBreadcrumbs
+        items={[
+          { label: "Overview", href: "/admin" },
+          { label: "Analytics" },
+        ]}
+      />
+
+      <AdminPageHeader
+        eyebrow="Last 30 days"
+        title="Visitor analytics"
+        description="Aggregated from the public /api/analytics tracker. Raw IP addresses are not stored."
+      />
       <div className="rounded-xl border border-border-subtle bg-surface p-6">
         <p className="text-4xl font-bold text-primary">{views.length}</p>
         <p className="mt-2 text-sm text-text-secondary">Page views</p>

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { HeroSketchPortrait } from "@/components/animations/HeroSketchPortrait";
 import { TypeWriter } from "@/components/animations/TypeWriter";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { MagneticButton } from "@/components/ui/MagneticButton";
@@ -11,6 +12,7 @@ import { TechMarquee } from "@/components/animations/TechMarquee";
 import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
 import { TypingCodeCard } from "@/components/animations/TypingCodeCard";
 import { GlowCard } from "@/components/ui/GlowCard";
+import { resolveHeroSketchUrl } from "@/lib/content/hero-sketch";
 import { usePortfolioContent } from "@/components/providers/ContentProvider";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ChevronDown, Download, Mail, Send } from "lucide-react";
@@ -29,12 +31,27 @@ export default function Home() {
   const prefersReducedMotion = useReducedMotion();
   const delay = (seconds: number) => (prefersReducedMotion ? 0 : seconds);
 
+  const heroSketchUrl = resolveHeroSketchUrl(home?.heroSketchUrl);
+  const heroSketchUrlLight =
+    typeof home?.heroSketchUrlLight === "string"
+      ? home.heroSketchUrlLight.trim()
+      : "";
+
   return (
     <>
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden dot-grid">
-        <HeroScene />
+      <section className="relative flex min-h-[100dvh] min-h-screen flex-col items-center overflow-hidden dot-grid">
+        <div className="pointer-events-none absolute inset-0 z-0">
+          <HeroScene />
+        </div>
 
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        <div className="relative z-10 flex w-full max-w-4xl flex-1 flex-col items-center px-4 pb-20 pt-[4.75rem] text-center sm:px-6 sm:pb-24">
+          <HeroSketchPortrait
+            src={heroSketchUrl}
+            lightSrc={heroSketchUrlLight || undefined}
+            alt={`${personalData.name} sketch`}
+          />
+
+          <div className="mt-3 flex w-full flex-1 flex-col items-center justify-center sm:mt-4">
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -102,9 +119,10 @@ export default function Home() {
               {String(home?.contactCtaLabel ?? "Get In Touch")}
             </MagneticButton>
           </motion.div>
+          </div>
         </div>
 
-        <ScrollReveal delay={delay(1)} className="absolute bottom-8 left-1/2 -translate-x-1/2">
+        <ScrollReveal delay={delay(1)} className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2">
           <motion.div
             animate={prefersReducedMotion ? undefined : { y: [0, 8, 0] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}

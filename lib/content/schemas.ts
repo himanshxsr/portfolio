@@ -38,11 +38,26 @@ const contentDataSchemas: Partial<
       linesOfCode: z.number().nonnegative(),
     }),
   }),
-  page: z.object({
-    title: z.string().min(1),
-    subtitle: z.string(),
-    sectionNumber: z.string(),
-  }),
+  page: z
+    .object({
+      title: z.string().min(1),
+      subtitle: z.string(),
+      sectionNumber: z.string(),
+      heroGreeting: z.string().optional(),
+      heroDescription: z.string().optional(),
+      heroSketchUrl: z.string().optional(),
+      heroSketchUrlLight: z.string().optional(),
+      workCtaLabel: z.string().optional(),
+      resumeCtaLabel: z.string().optional(),
+      contactCtaLabel: z.string().optional(),
+      featuredEyebrow: z.string().optional(),
+      featuredTitle: z.string().optional(),
+      aboutTitle: z.string().optional(),
+      contactEyebrow: z.string().optional(),
+      contactTitle: z.string().optional(),
+      contactDescription: z.string().optional(),
+    })
+    .passthrough(),
   navigation: z.object({
     label: z.string().min(1),
     href: z.string().startsWith("/"),
